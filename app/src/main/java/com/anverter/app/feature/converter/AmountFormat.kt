@@ -15,7 +15,7 @@ fun parseAmount(input: String): Double {
 fun formatAmount(value: Double, type: CurrencyType): String {
     if (!value.isFinite()) return "0"
     val scale = if (type == CurrencyType.CRYPTO) 8 else 2
-    val rounded = BigDecimal(value).setScale(scale, RoundingMode.HALF_UP)
+    val rounded = BigDecimal.valueOf(value).setScale(scale, RoundingMode.HALF_UP)
     val trimmed = if (type == CurrencyType.CRYPTO) rounded.stripTrailingZeros() else rounded
     return trimmed.toPlainString().let {
         if (type == CurrencyType.CRYPTO) it else groupThousands(it)
