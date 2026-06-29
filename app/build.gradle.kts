@@ -19,12 +19,12 @@ val hasReleaseKeystore = keystoreProperties.getProperty("storeFile")?.let { file
 
 android {
     namespace = "com.anverter.app"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.anverter.app"
         minSdk = 31
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
