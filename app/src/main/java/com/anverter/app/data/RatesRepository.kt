@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 
 /**
  * Network-first with cache fallback. [cachedRates] is the source of truth the UI observes;
- * [refresh] updates it. No background scheduling — callers invoke [refresh] only while the app
+ * [refresh] updates it. No background scheduling - callers invoke [refresh] only while the app
  * is in the foreground and online.
  */
 class RatesRepository(
