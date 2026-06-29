@@ -15,7 +15,7 @@ permissions:
   contents: read
 
 jobs:
-  # Unit tests run in parallel with the APK builds — pure JVM, fast.
+  # Unit tests run in parallel with the APK builds - pure JVM, fast.
   test:
     name: Unit tests
     runs-on: ubuntu-latest
@@ -86,7 +86,7 @@ jobs:
           EOF
             echo "Release keystore configured."
           else
-            echo "No release keystore secret — release will be signed with the debug key."
+            echo "No release keystore secret - release will be signed with the debug key."
           fi
 
       - name: Assemble ${{ matrix.variant }} APK
