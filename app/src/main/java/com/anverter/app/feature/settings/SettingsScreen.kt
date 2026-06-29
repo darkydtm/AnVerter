@@ -23,8 +23,8 @@ import com.anverter.app.ui.theme.ThemeMode
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.SmallTitle
 import top.yukonga.miuix.kmp.basic.TopAppBar
-import top.yukonga.miuix.kmp.extra.SuperArrow
-import top.yukonga.miuix.kmp.extra.SuperDropdown
+import top.yukonga.miuix.kmp.preference.ArrowPreference
+import top.yukonga.miuix.kmp.preference.WindowDropdownPreference
 
 private val THEME_ORDER = listOf(ThemeMode.SYSTEM, ThemeMode.LIGHT, ThemeMode.DARK)
 private const val GPL_URL = "https://www.gnu.org/licenses/gpl-3.0.html"
@@ -53,7 +53,7 @@ fun SettingsScreen(
 
         SmallTitle(text = stringResource(R.string.settings_theme))
         Card(modifier = Modifier.fillMaxWidth()) {
-            SuperDropdown(
+            WindowDropdownPreference(
                 title = stringResource(R.string.settings_theme),
                 items = themeLabels,
                 selectedIndex = THEME_ORDER.indexOf(themeMode).coerceAtLeast(0),
@@ -63,18 +63,18 @@ fun SettingsScreen(
 
         SmallTitle(text = stringResource(R.string.settings_about))
         Card(modifier = Modifier.fillMaxWidth()) {
-            SuperArrow(
+            ArrowPreference(
                 title = stringResource(R.string.settings_source),
                 summary = stringResource(R.string.settings_source_value),
             )
-            SuperArrow(
+            ArrowPreference(
                 title = stringResource(R.string.settings_license),
                 summary = stringResource(R.string.settings_license_value),
                 onClick = {
                     context.startActivity(Intent(Intent.ACTION_VIEW, GPL_URL.toUri()))
                 },
             )
-            SuperArrow(
+            ArrowPreference(
                 title = stringResource(R.string.settings_version),
                 summary = BuildConfig.VERSION_NAME,
             )
