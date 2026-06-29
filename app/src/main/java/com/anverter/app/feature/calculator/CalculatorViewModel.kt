@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.update
 data class CalculatorUiState(
     val expression: String = "",
     val preview: String = "",
+    val error: Boolean = false,
 )
 
 class CalculatorViewModel : ViewModel() {
@@ -17,7 +18,7 @@ class CalculatorViewModel : ViewModel() {
     val state: StateFlow<CalculatorUiState> = _state.asStateFlow()
 
     fun input(token: String) {
-        _state.update { it.copy(expression = it.expression + token) }
+        _state.update { it.copy(expression = it.expression + token, error = false) }
         recomputePreview()
     }
 
@@ -26,7 +27,7 @@ class CalculatorViewModel : ViewModel() {
     }
 
     fun backspace() {
-        _state.update { it.copy(expression = it.expression.dropLast(1)) }
+        _state.update { it.copy(expression = it.expression.dropLast(1), error = false) }
         recomputePreview()
     }
 
@@ -34,9 +35,9 @@ class CalculatorViewModel : ViewModel() {
         val expression = _state.value.expression
         val result = CalculatorEngine.evaluateOrNull(expression)
         _state.value = if (result != null) {
-            CalculatorUiState(expression = formatCalcResult(result), preview = "")
+            CalculatorUiState(expression = formatCalcResult(result))
         } else {
-            _state.value.copy(preview = ERROR)
+            _state.value.copy(error = true)
         }
     }
 
@@ -44,9 +45,5 @@ class CalculatorViewModel : ViewModel() {
         val expression = _state.value.expression
         val preview = CalculatorEngine.evaluateOrNull(expression)?.let(::formatCalcResult).orEmpty()
         _state.update { it.copy(preview = preview) }
-    }
-
-    private companion object {
-        const val ERROR = "Ошибка"
     }
 }

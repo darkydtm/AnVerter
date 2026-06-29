@@ -147,7 +147,7 @@ object CalculatorEngine {
 
 /** Formats a calculator result: integers without a fraction, otherwise trimmed decimals. */
 fun formatCalcResult(value: Double): String {
-    if (!value.isFinite()) return "Ошибка"
-    val rounded = BigDecimal(value).setScale(10, RoundingMode.HALF_UP).stripTrailingZeros()
+    if (!value.isFinite()) return ""
+    val rounded = BigDecimal.valueOf(value).setScale(10, RoundingMode.HALF_UP).stripTrailingZeros()
     return rounded.toPlainString()
 }

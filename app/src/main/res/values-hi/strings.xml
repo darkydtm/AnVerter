@@ -17,6 +17,7 @@
     <string name="converter_error">दरें रिफ़्रेश करने में विफल</string>
 
     <string name="calculator_title">कैलकुलेटर</string>
+    <string name="calculator_error">त्रुटि</string>
 
     <string name="settings_title">सेटिंग्स</string>
     <string name="settings_theme">थीम</string>

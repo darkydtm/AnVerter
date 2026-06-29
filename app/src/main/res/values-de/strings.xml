@@ -17,6 +17,7 @@
     <string name="converter_error">Kurse konnten nicht aktualisiert werden</string>
 
     <string name="calculator_title">Rechner</string>
+    <string name="calculator_error">Fehler</string>
 
     <string name="settings_title">Einstellungen</string>
     <string name="settings_theme">Design</string>
