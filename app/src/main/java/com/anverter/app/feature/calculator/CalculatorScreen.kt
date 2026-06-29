@@ -58,11 +58,15 @@ fun CalculatorScreen(
                 color = MiuixTheme.colorScheme.onBackground,
             )
             Text(
-                text = state.preview,
+                text = if (state.error) stringResource(R.string.calculator_error) else state.preview,
                 fontSize = 24.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                color = MiuixTheme.colorScheme.onBackgroundVariant,
+                color = if (state.error) {
+                    MiuixTheme.colorScheme.error
+                } else {
+                    MiuixTheme.colorScheme.onBackgroundVariant
+                },
             )
         }
 

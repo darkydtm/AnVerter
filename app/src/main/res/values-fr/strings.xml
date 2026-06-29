@@ -17,6 +17,7 @@
     <string name="converter_error">Échec de l\'actualisation des taux</string>
 
     <string name="calculator_title">Calculatrice</string>
+    <string name="calculator_error">Erreur</string>
 
     <string name="settings_title">Paramètres</string>
     <string name="settings_theme">Thème</string>

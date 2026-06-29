@@ -17,6 +17,7 @@
     <string name="converter_error">Не удалось обновить курсы</string>
 
     <string name="calculator_title">Калькулятор</string>
+    <string name="calculator_error">Ошибка</string>
 
     <string name="settings_title">Настройки</string>
     <string name="settings_theme">Тема</string>

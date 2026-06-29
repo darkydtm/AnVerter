@@ -17,6 +17,7 @@
     <string name="converter_error">فشل تحديث الأسعار</string>
 
     <string name="calculator_title">الآلة الحاسبة</string>
+    <string name="calculator_error">خطأ</string>
 
     <string name="settings_title">الإعدادات</string>
     <string name="settings_theme">السمة</string>

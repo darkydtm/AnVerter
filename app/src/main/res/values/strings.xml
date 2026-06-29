@@ -19,6 +19,7 @@
     <string name="converter_error">Failed to refresh rates</string>
 
     <string name="calculator_title">Calculator</string>
+    <string name="calculator_error">Error</string>
 
     <string name="settings_title">Settings</string>
     <string name="settings_theme">Theme</string>

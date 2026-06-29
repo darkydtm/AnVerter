@@ -17,6 +17,7 @@
     <string name="converter_error">レートの更新に失敗しました</string>
 
     <string name="calculator_title">電卓</string>
+    <string name="calculator_error">エラー</string>
 
     <string name="settings_title">設定</string>
     <string name="settings_theme">テーマ</string>

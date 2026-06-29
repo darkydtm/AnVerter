@@ -17,6 +17,7 @@
     <string name="converter_error">Falha ao atualizar as taxas</string>
 
     <string name="calculator_title">Calculadora</string>
+    <string name="calculator_error">Erro</string>
 
     <string name="settings_title">Configurações</string>
     <string name="settings_theme">Tema</string>
