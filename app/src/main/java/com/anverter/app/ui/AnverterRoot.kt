@@ -7,6 +7,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.CurrencyExchange
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Calculate
+import androidx.compose.material.icons.outlined.CurrencyExchange
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -27,11 +30,13 @@ import com.anverter.app.feature.converter.ConverterViewModel
 import com.anverter.app.feature.settings.SettingsScreen
 import com.anverter.app.feature.settings.SettingsViewModel
 import com.anverter.app.ui.theme.AnverterTheme
-import top.yukonga.miuix.kmp.basic.NavigationBar
-import top.yukonga.miuix.kmp.basic.NavigationBarItem
 import top.yukonga.miuix.kmp.basic.Scaffold
 
-private data class Tab(val labelRes: Int, val icon: ImageVector)
+private data class Tab(
+    val labelRes: Int,
+    val selectedIcon: ImageVector,
+    val unselectedIcon: ImageVector,
+)
 
 @Composable
 fun AnverterRoot(container: AppContainer) {
@@ -55,25 +60,26 @@ private fun AnverterApp(
     settingsViewModel: SettingsViewModel,
 ) {
     val tabs = listOf(
-        Tab(R.string.tab_converter, Icons.Filled.CurrencyExchange),
-        Tab(R.string.tab_calculator, Icons.Filled.Calculate),
-        Tab(R.string.tab_settings, Icons.Filled.Settings),
+        Tab(R.string.tab_converter, Icons.Filled.CurrencyExchange, Icons.Outlined.CurrencyExchange),
+        Tab(R.string.tab_calculator, Icons.Filled.Calculate, Icons.Outlined.Calculate),
+        Tab(R.string.tab_settings, Icons.Filled.Settings, Icons.Outlined.Settings),
     )
     var selected by rememberSaveable { mutableIntStateOf(0) }
 
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
-            NavigationBar {
-                tabs.forEachIndexed { index, tab ->
-                    NavigationBarItem(
-                        selected = selected == index,
-                        onClick = { selected = index },
-                        icon = tab.icon,
-                        label = stringResource(tab.labelRes),
+            LiquidGlassNavBar(
+                items = tabs.map {
+                    NavBarItem(
+                        selectedIcon = it.selectedIcon,
+                        unselectedIcon = it.unselectedIcon,
+                        contentDescription = stringResource(it.labelRes),
                     )
-                }
-            }
+                },
+                selectedIndex = selected,
+                onSelect = { selected = it },
+            )
         },
     ) { padding ->
         val bottomPadding = padding.calculateBottomPadding()
