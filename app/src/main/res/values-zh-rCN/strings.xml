@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tab_converter">转换器</string>
+    <string name="tab_calculator">计算器</string>
+    <string name="tab_settings">设置</string>
+
+    <string name="converter_title">货币转换器</string>
+    <string name="converter_amount">金额</string>
+    <string name="converter_from">从</string>
+    <string name="converter_to">到</string>
+    <string name="converter_swap">交换</string>
+    <string name="converter_refresh">刷新汇率</string>
+    <string name="converter_updated">更新于：%1$s</string>
+    <string name="converter_updated_never">汇率尚未加载</string>
+    <string name="converter_offline">无网络 - 显示最近汇率</string>
+    <string name="converter_loading">正在加载汇率…</string>
+    <string name="converter_error">刷新汇率失败</string>
+
+    <string name="calculator_title">计算器</string>
+
+    <string name="settings_title">设置</string>
+    <string name="settings_theme">主题</string>
+    <string name="settings_theme_system">跟随系统</string>
+    <string name="settings_theme_light">浅色</string>
+    <string name="settings_theme_dark">深色</string>
+    <string name="settings_about">关于</string>
+    <string name="settings_source">汇率来源</string>
+    <string name="settings_license">许可证</string>
+    <string name="settings_version">版本</string>
+</resources>

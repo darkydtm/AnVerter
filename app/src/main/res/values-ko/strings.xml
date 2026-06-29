@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tab_converter">변환기</string>
+    <string name="tab_calculator">계산기</string>
+    <string name="tab_settings">설정</string>
+
+    <string name="converter_title">통화 변환기</string>
+    <string name="converter_amount">금액</string>
+    <string name="converter_from">보내는 통화</string>
+    <string name="converter_to">받는 통화</string>
+    <string name="converter_swap">교환</string>
+    <string name="converter_refresh">환율 새로고침</string>
+    <string name="converter_updated">업데이트: %1$s</string>
+    <string name="converter_updated_never">환율이 아직 로드되지 않음</string>
+    <string name="converter_offline">네트워크 없음 - 마지막 환율 표시</string>
+    <string name="converter_loading">환율 불러오는 중…</string>
+    <string name="converter_error">환율 새로고침 실패</string>
+
+    <string name="calculator_title">계산기</string>
+
+    <string name="settings_title">설정</string>
+    <string name="settings_theme">테마</string>
+    <string name="settings_theme_system">시스템</string>
+    <string name="settings_theme_light">라이트</string>
+    <string name="settings_theme_dark">다크</string>
+    <string name="settings_about">정보</string>
+    <string name="settings_source">환율 출처</string>
+    <string name="settings_license">라이선스</string>
+    <string name="settings_version">버전</string>
+</resources>

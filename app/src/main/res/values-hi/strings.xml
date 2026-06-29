@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tab_converter">कन्वर्टर</string>
+    <string name="tab_calculator">कैलकुलेटर</string>
+    <string name="tab_settings">सेटिंग्स</string>
+
+    <string name="converter_title">मुद्रा कन्वर्टर</string>
+    <string name="converter_amount">राशि</string>
+    <string name="converter_from">से</string>
+    <string name="converter_to">में</string>
+    <string name="converter_swap">अदला-बदली</string>
+    <string name="converter_refresh">दरें रिफ़्रेश करें</string>
+    <string name="converter_updated">अपडेट किया गया: %1$s</string>
+    <string name="converter_updated_never">दरें अभी लोड नहीं हुईं</string>
+    <string name="converter_offline">नेटवर्क नहीं - अंतिम दरें दिखाई जा रही हैं</string>
+    <string name="converter_loading">दरें लोड हो रही हैं…</string>
+    <string name="converter_error">दरें रिफ़्रेश करने में विफल</string>
+
+    <string name="calculator_title">कैलकुलेटर</string>
+
+    <string name="settings_title">सेटिंग्स</string>
+    <string name="settings_theme">थीम</string>
+    <string name="settings_theme_system">सिस्टम</string>
+    <string name="settings_theme_light">लाइट</string>
+    <string name="settings_theme_dark">डार्क</string>
+    <string name="settings_about">ऐप के बारे में</string>
+    <string name="settings_source">दरों का स्रोत</string>
+    <string name="settings_license">लाइसेंस</string>
+    <string name="settings_version">संस्करण</string>
+</resources>

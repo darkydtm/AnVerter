@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tab_converter">コンバーター</string>
+    <string name="tab_calculator">電卓</string>
+    <string name="tab_settings">設定</string>
+
+    <string name="converter_title">通貨コンバーター</string>
+    <string name="converter_amount">金額</string>
+    <string name="converter_from">変換元</string>
+    <string name="converter_to">変換先</string>
+    <string name="converter_swap">入れ替え</string>
+    <string name="converter_refresh">レートを更新</string>
+    <string name="converter_updated">更新: %1$s</string>
+    <string name="converter_updated_never">レートが未読み込みです</string>
+    <string name="converter_offline">ネットワークなし - 最新のレートを表示</string>
+    <string name="converter_loading">レートを読み込み中…</string>
+    <string name="converter_error">レートの更新に失敗しました</string>
+
+    <string name="calculator_title">電卓</string>
+
+    <string name="settings_title">設定</string>
+    <string name="settings_theme">テーマ</string>
+    <string name="settings_theme_system">システム</string>
+    <string name="settings_theme_light">ライト</string>
+    <string name="settings_theme_dark">ダーク</string>
+    <string name="settings_about">アプリについて</string>
+    <string name="settings_source">レートの提供元</string>
+    <string name="settings_license">ライセンス</string>
+    <string name="settings_version">バージョン</string>
+</resources>
