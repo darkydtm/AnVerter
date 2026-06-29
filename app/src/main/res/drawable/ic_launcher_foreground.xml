@@ -1,0 +1,15 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Conversion arrows centered in the adaptive-icon safe zone -->
+    <group android:translateX="0" android:translateY="0">
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M40,40 H68 L68,32 L82,46 L68,60 L68,52 H40 Z" />
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M68,72 H40 L40,80 L26,66 L40,52 L40,60 H68 Z" />
+    </group>
+</vector>
