@@ -20,7 +20,7 @@ val hasReleaseKeystore = keystoreProperties.getProperty("storeFile")?.let { file
 
 android {
     namespace = "com.anverter.app"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.anverter.app"
@@ -101,7 +101,6 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
 
     implementation(libs.miuix.ui)
-    implementation(libs.miuix.blur)
     implementation(libs.miuix.preference)
 
     implementation(libs.okhttp)
