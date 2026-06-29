@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tab_converter">Umrechner</string>
+    <string name="tab_calculator">Rechner</string>
+    <string name="tab_settings">Einstellungen</string>
+
+    <string name="converter_title">Währungsumrechner</string>
+    <string name="converter_amount">Betrag</string>
+    <string name="converter_from">Von</string>
+    <string name="converter_to">Nach</string>
+    <string name="converter_swap">Tauschen</string>
+    <string name="converter_refresh">Kurse aktualisieren</string>
+    <string name="converter_updated">Aktualisiert: %1$s</string>
+    <string name="converter_updated_never">Kurse noch nicht geladen</string>
+    <string name="converter_offline">Kein Netz - letzte Kurse werden angezeigt</string>
+    <string name="converter_loading">Kurse werden geladen…</string>
+    <string name="converter_error">Kurse konnten nicht aktualisiert werden</string>
+
+    <string name="calculator_title">Rechner</string>
+
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_theme">Design</string>
+    <string name="settings_theme_system">System</string>
+    <string name="settings_theme_light">Hell</string>
+    <string name="settings_theme_dark">Dunkel</string>
+    <string name="settings_about">Über</string>
+    <string name="settings_source">Kursquelle</string>
+    <string name="settings_license">Lizenz</string>
+    <string name="settings_version">Version</string>
+</resources>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tab_converter">Конвертер</string>
+    <string name="tab_calculator">Калькулятор</string>
+    <string name="tab_settings">Настройки</string>
+
+    <string name="converter_title">Конвертер валют</string>
+    <string name="converter_amount">Сумма</string>
+    <string name="converter_from">Из</string>
+    <string name="converter_to">В</string>
+    <string name="converter_swap">Поменять местами</string>
+    <string name="converter_refresh">Обновить курсы</string>
+    <string name="converter_updated">Обновлено: %1$s</string>
+    <string name="converter_updated_never">Курсы ещё не загружены</string>
+    <string name="converter_offline">Нет сети - показаны последние курсы</string>
+    <string name="converter_loading">Загрузка курсов…</string>
+    <string name="converter_error">Не удалось обновить курсы</string>
+
+    <string name="calculator_title">Калькулятор</string>
+
+    <string name="settings_title">Настройки</string>
+    <string name="settings_theme">Тема</string>
+    <string name="settings_theme_system">Системная</string>
+    <string name="settings_theme_light">Светлая</string>
+    <string name="settings_theme_dark">Тёмная</string>
+    <string name="settings_about">О приложении</string>
+    <string name="settings_source">Источник курсов</string>
+    <string name="settings_license">Лицензия</string>
+    <string name="settings_version">Версия</string>
+</resources>

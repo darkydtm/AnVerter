@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tab_converter">المحوّل</string>
+    <string name="tab_calculator">الآلة الحاسبة</string>
+    <string name="tab_settings">الإعدادات</string>
+
+    <string name="converter_title">محوّل العملات</string>
+    <string name="converter_amount">المبلغ</string>
+    <string name="converter_from">من</string>
+    <string name="converter_to">إلى</string>
+    <string name="converter_swap">تبديل</string>
+    <string name="converter_refresh">تحديث الأسعار</string>
+    <string name="converter_updated">تم التحديث: %1$s</string>
+    <string name="converter_updated_never">لم يتم تحميل الأسعار بعد</string>
+    <string name="converter_offline">لا توجد شبكة - عرض آخر الأسعار</string>
+    <string name="converter_loading">جارٍ تحميل الأسعار…</string>
+    <string name="converter_error">فشل تحديث الأسعار</string>
+
+    <string name="calculator_title">الآلة الحاسبة</string>
+
+    <string name="settings_title">الإعدادات</string>
+    <string name="settings_theme">السمة</string>
+    <string name="settings_theme_system">النظام</string>
+    <string name="settings_theme_light">فاتح</string>
+    <string name="settings_theme_dark">داكن</string>
+    <string name="settings_about">حول</string>
+    <string name="settings_source">مصدر الأسعار</string>
+    <string name="settings_license">الترخيص</string>
+    <string name="settings_version">الإصدار</string>
+</resources>

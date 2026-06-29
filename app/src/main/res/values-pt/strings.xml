@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tab_converter">Conversor</string>
+    <string name="tab_calculator">Calculadora</string>
+    <string name="tab_settings">Configurações</string>
+
+    <string name="converter_title">Conversor de moedas</string>
+    <string name="converter_amount">Valor</string>
+    <string name="converter_from">De</string>
+    <string name="converter_to">Para</string>
+    <string name="converter_swap">Inverter</string>
+    <string name="converter_refresh">Atualizar taxas</string>
+    <string name="converter_updated">Atualizado: %1$s</string>
+    <string name="converter_updated_never">Taxas ainda não carregadas</string>
+    <string name="converter_offline">Sem rede - mostrando últimas taxas</string>
+    <string name="converter_loading">Carregando taxas…</string>
+    <string name="converter_error">Falha ao atualizar as taxas</string>
+
+    <string name="calculator_title">Calculadora</string>
+
+    <string name="settings_title">Configurações</string>
+    <string name="settings_theme">Tema</string>
+    <string name="settings_theme_system">Sistema</string>
+    <string name="settings_theme_light">Claro</string>
+    <string name="settings_theme_dark">Escuro</string>
+    <string name="settings_about">Sobre</string>
+    <string name="settings_source">Fonte das taxas</string>
+    <string name="settings_license">Licença</string>
+    <string name="settings_version">Versão</string>
+</resources>
