@@ -100,7 +100,9 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.extended)
     debugImplementation(libs.androidx.compose.ui.tooling)
 
-    implementation(libs.miuix)
+    implementation(libs.miuix.ui)
+    implementation(libs.miuix.blur)
+    implementation(libs.miuix.preference)
 
     implementation(libs.okhttp)
     implementation(libs.kotlinx.serialization.json)
