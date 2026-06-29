@@ -39,7 +39,7 @@ import top.yukonga.miuix.kmp.basic.SmallTitle
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.basic.TopAppBar
-import top.yukonga.miuix.kmp.extra.SuperDropdown
+import top.yukonga.miuix.kmp.preference.WindowDropdownPreference
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @Composable
@@ -166,7 +166,7 @@ private fun CurrencyDropdown(
     val labels = state.currencies.map { it.label }
     val selectedIndex = state.currencies.indexOfFirst { it.code == selectedCode }.coerceAtLeast(0)
     Card(modifier = Modifier.fillMaxWidth()) {
-        SuperDropdown(
+        WindowDropdownPreference(
             title = title,
             items = labels,
             selectedIndex = selectedIndex,
