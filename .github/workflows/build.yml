@@ -78,12 +78,15 @@ jobs:
         run: |
           if [ -n "$KEYSTORE_BASE64" ]; then
             echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
-            cat > keystore.properties <<EOF
-          storeFile=$RUNNER_TEMP/release.jks
-          storePassword=$KEYSTORE_PASSWORD
-          keyAlias=$KEY_ALIAS
-          keyPassword=$KEY_PASSWORD
-          EOF
+            # keystore.properties is a Java Properties file: backslash is an escape
+            # char, so double any backslash to survive Properties.load() unmangled.
+            esc() { printf '%s' "$1" | sed 's/\\/\\\\/g'; }
+            {
+              echo "storeFile=$RUNNER_TEMP/release.jks"
+              echo "storePassword=$(esc "$KEYSTORE_PASSWORD")"
+              echo "keyAlias=$(esc "$KEY_ALIAS")"
+              echo "keyPassword=$(esc "$KEY_PASSWORD")"
+            } > keystore.properties
             echo "Release keystore configured."
           else
             echo "No release keystore secret - release will be signed with the debug key."
