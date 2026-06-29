@@ -184,7 +184,7 @@ private fun ResultCard(state: ConverterUiState) {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                text = if (state.result.isEmpty()) "—" else state.result,
+                text = if (state.result.isEmpty()) "-" else state.result,
                 fontSize = 34.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,

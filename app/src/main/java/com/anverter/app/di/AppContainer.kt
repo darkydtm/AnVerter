@@ -9,7 +9,7 @@ import com.anverter.app.data.remote.CoinGeckoClient
 import java.util.concurrent.TimeUnit
 import okhttp3.OkHttpClient
 
-/** Manual dependency container — no DI framework keeps the build lean and fast. */
+/** Manual dependency container - no DI framework keeps the build lean and fast. */
 class AppContainer(context: Context) {
 
     private val httpClient: OkHttpClient = OkHttpClient.Builder()
