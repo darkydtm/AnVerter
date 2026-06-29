@@ -61,7 +61,7 @@ class ConverterViewModel(
             connectivity.isOnline.collect { online ->
                 val wasOffline = !_state.value.online
                 _state.update { it.copy(online = online) }
-                if (online && wasOffline && resumed) refresh()
+                if (online && wasOffline && resumed && isStale()) refresh()
             }
         }
     }
@@ -69,9 +69,12 @@ class ConverterViewModel(
     /** Called when the screen becomes visible. Syncs only if online and data is stale. */
     fun onResumed() {
         resumed = true
-        val updatedAt = snapshot?.updatedAtEpochMs
-        val stale = updatedAt == null || System.currentTimeMillis() - updatedAt > STALE_THRESHOLD_MS
-        if (_state.value.online && stale) refresh()
+        if (_state.value.online && isStale()) refresh()
+    }
+
+    private fun isStale(): Boolean {
+        val updatedAt = snapshot?.updatedAtEpochMs ?: return true
+        return System.currentTimeMillis() - updatedAt > STALE_THRESHOLD_MS
     }
 
     fun onPaused() {
