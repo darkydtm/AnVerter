@@ -26,3 +26,9 @@ captures/
 *.keystore
 keystore.properties
 release.properties
+
+# Internal docs
+docs/
+
+# Scratch logo sources
+delete-later/
