@@ -23,6 +23,7 @@ captures/
 
 # Keystores / secrets
 *.jks
+*.jks.b64
 *.keystore
 keystore.properties
 release.properties
