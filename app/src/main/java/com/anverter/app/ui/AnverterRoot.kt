@@ -2,7 +2,6 @@ package com.anverter.app.ui
 
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.pager.HorizontalPager
@@ -30,13 +29,14 @@ import com.anverter.app.feature.converter.ConverterScreen
 import com.anverter.app.feature.converter.ConverterViewModel
 import com.anverter.app.feature.settings.SettingsScreen
 import com.anverter.app.feature.settings.SettingsViewModel
+import com.anverter.app.ui.adaptive.AppFloatingNavigationBar
+import com.anverter.app.ui.adaptive.AppFloatingNavigationBarItem
+import com.anverter.app.ui.adaptive.AppNavigationBar
+import com.anverter.app.ui.adaptive.AppNavigationBarItem
+import com.anverter.app.ui.adaptive.AppScaffold
+import com.anverter.app.ui.adaptive.ProvideAppStyle
 import com.anverter.app.ui.theme.AnverterTheme
 import kotlinx.coroutines.launch
-import top.yukonga.miuix.kmp.basic.FloatingNavigationBar
-import top.yukonga.miuix.kmp.basic.FloatingNavigationBarItem
-import top.yukonga.miuix.kmp.basic.NavigationBar
-import top.yukonga.miuix.kmp.basic.NavigationBarItem
-import top.yukonga.miuix.kmp.basic.Scaffold
 
 private data class Tab(val labelRes: Int, val icon: ImageVector)
 
@@ -79,14 +79,18 @@ fun AnverterRoot(container: AppContainer) {
     val settingsViewModel: SettingsViewModel = viewModel(factory = factory)
     val themeMode by settingsViewModel.themeMode.collectAsStateWithLifecycle()
     val navBarStyle by settingsViewModel.navBarStyle.collectAsStateWithLifecycle()
+    val uiStyle by settingsViewModel.uiStyle.collectAsStateWithLifecycle()
+    val soundFeedback by settingsViewModel.soundFeedback.collectAsStateWithLifecycle()
 
-    AnverterTheme(themeMode = themeMode) {
-        AnverterApp(
-            converterViewModel = viewModel(factory = factory),
-            calculatorViewModel = viewModel(factory = factory),
-            settingsViewModel = settingsViewModel,
-            navBarStyle = navBarStyle,
-        )
+    AnverterTheme(themeMode = themeMode, uiStyle = uiStyle) {
+        ProvideAppStyle(uiStyle = uiStyle, soundFeedback = soundFeedback) {
+            AnverterApp(
+                converterViewModel = viewModel(factory = factory),
+                calculatorViewModel = viewModel(factory = factory),
+                settingsViewModel = settingsViewModel,
+                navBarStyle = navBarStyle,
+            )
+        }
     }
 }
 
@@ -115,8 +119,7 @@ private fun AnverterApp(
         }
     }
 
-    Scaffold(
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+    AppScaffold(
         bottomBar = {
             when (navBarStyle) {
                 NavBarStyle.SLIDER -> Box(
@@ -125,9 +128,9 @@ private fun AnverterApp(
                         .then(swipeTabsModifier(tabs.size, dragTo)),
                     contentAlignment = Alignment.Center,
                 ) {
-                    FloatingNavigationBar {
+                    AppFloatingNavigationBar {
                         tabs.forEachIndexed { index, tab ->
-                            FloatingNavigationBarItem(
+                            AppFloatingNavigationBarItem(
                                 selected = selected == index,
                                 onClick = { goTo(index) },
                                 icon = tab.icon,
@@ -137,9 +140,9 @@ private fun AnverterApp(
                     }
                 }
 
-                NavBarStyle.TABS -> NavigationBar {
+                NavBarStyle.TABS -> AppNavigationBar {
                     tabs.forEachIndexed { index, tab ->
-                        NavigationBarItem(
+                        AppNavigationBarItem(
                             selected = selected == index,
                             onClick = { goTo(index) },
                             icon = tab.icon,

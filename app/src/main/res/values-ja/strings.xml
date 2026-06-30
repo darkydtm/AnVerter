@@ -24,15 +24,22 @@
 
     <string name="calculator_title">電卓</string>
     <string name="calculator_error">エラー</string>
+    <string name="calculator_backspace">削除</string>
 
     <string name="settings_title">設定</string>
     <string name="settings_theme">テーマ</string>
     <string name="settings_theme_system">システム</string>
     <string name="settings_theme_light">ライト</string>
     <string name="settings_theme_dark">ダーク</string>
+    <string name="settings_design_style">デザインスタイル</string>
+    <string name="settings_design_miuix">Miuix</string>
+    <string name="settings_design_material3">Material Design 3</string>
     <string name="settings_navbar">ナビゲーションバー</string>
     <string name="settings_navbar_tabs">タブ</string>
     <string name="settings_navbar_slider">フローティング</string>
+    <string name="settings_sound_feedback">操作音</string>
+    <string name="settings_sound_on">オン</string>
+    <string name="settings_sound_off">オフ</string>
     <string name="settings_about">アプリについて</string>
     <string name="settings_source">レートの提供元</string>
     <string name="settings_license">ライセンス</string>

@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.anverter.app.data.local.SettingsStore
 import com.anverter.app.ui.NavBarStyle
+import com.anverter.app.ui.SoundFeedback
+import com.anverter.app.ui.UiStyle
 import com.anverter.app.ui.theme.ThemeMode
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -32,5 +34,25 @@ class SettingsViewModel(
 
     fun setNavBarStyle(style: NavBarStyle) {
         viewModelScope.launch { store.setNavBarStyle(style) }
+    }
+
+    val uiStyle: StateFlow<UiStyle> = store.uiStyle.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = UiStyle.MIUIX,
+    )
+
+    fun setUiStyle(style: UiStyle) {
+        viewModelScope.launch { store.setUiStyle(style) }
+    }
+
+    val soundFeedback: StateFlow<SoundFeedback> = store.soundFeedback.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = SoundFeedback.ON,
+    )
+
+    fun setSoundFeedback(sound: SoundFeedback) {
+        viewModelScope.launch { store.setSoundFeedback(sound) }
     }
 }

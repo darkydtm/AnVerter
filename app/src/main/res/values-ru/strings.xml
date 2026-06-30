@@ -24,15 +24,22 @@
 
     <string name="calculator_title">Калькулятор</string>
     <string name="calculator_error">Ошибка</string>
+    <string name="calculator_backspace">Удалить символ</string>
 
     <string name="settings_title">Настройки</string>
     <string name="settings_theme">Тема</string>
     <string name="settings_theme_system">Системная</string>
     <string name="settings_theme_light">Светлая</string>
     <string name="settings_theme_dark">Тёмная</string>
+    <string name="settings_design_style">Стиль дизайна</string>
+    <string name="settings_design_miuix">Miuix</string>
+    <string name="settings_design_material3">Material Design 3</string>
     <string name="settings_navbar">Панель навигации</string>
     <string name="settings_navbar_tabs">Вкладки</string>
     <string name="settings_navbar_slider">Плавающая</string>
+    <string name="settings_sound_feedback">Звуки интерфейса</string>
+    <string name="settings_sound_on">Включены</string>
+    <string name="settings_sound_off">Выключены</string>
     <string name="settings_about">О приложении</string>
     <string name="settings_source">Источник курсов</string>
     <string name="settings_license">Лицензия</string>

@@ -43,16 +43,17 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.anverter.app.R
-import top.yukonga.miuix.kmp.basic.Card
-import top.yukonga.miuix.kmp.basic.Icon
-import top.yukonga.miuix.kmp.basic.IconButton
-import top.yukonga.miuix.kmp.basic.SmallTitle
-import top.yukonga.miuix.kmp.basic.Surface
-import top.yukonga.miuix.kmp.basic.Text
-import top.yukonga.miuix.kmp.basic.TextField
-import top.yukonga.miuix.kmp.basic.TopAppBar
-import top.yukonga.miuix.kmp.preference.ArrowPreference
-import top.yukonga.miuix.kmp.theme.MiuixTheme
+import com.anverter.app.ui.adaptive.AppCard
+import com.anverter.app.ui.adaptive.AppColors
+import com.anverter.app.ui.adaptive.AppIcon
+import com.anverter.app.ui.adaptive.AppIconButton
+import com.anverter.app.ui.adaptive.AppPreferenceRow
+import com.anverter.app.ui.adaptive.AppSmallTitle
+import com.anverter.app.ui.adaptive.AppSurface
+import com.anverter.app.ui.adaptive.AppText
+import com.anverter.app.ui.adaptive.AppTextField
+import com.anverter.app.ui.adaptive.AppTopBar
+import com.anverter.app.ui.adaptive.appClick
 
 private enum class PickerTarget { FROM, TO }
 
@@ -71,14 +72,14 @@ fun ConverterScreen(
     }
 
     Column(modifier = modifier.fillMaxWidth()) {
-        TopAppBar(
+        AppTopBar(
             title = stringResource(R.string.converter_title),
             actions = {
-                IconButton(onClick = viewModel::refresh) {
-                    Icon(
+                AppIconButton(onClick = viewModel::refresh) {
+                    AppIcon(
                         imageVector = Icons.Filled.Refresh,
                         contentDescription = stringResource(R.string.converter_refresh),
-                        tint = MiuixTheme.colorScheme.onBackground,
+                        tint = AppColors.onBackground,
                     )
                 }
             },
@@ -92,7 +93,7 @@ fun ConverterScreen(
         ) {
             AmountField(state, viewModel)
 
-            SmallTitle(text = stringResource(R.string.converter_from))
+            AppSmallTitle(text = stringResource(R.string.converter_from))
             CurrencyField(
                 state = state,
                 selectedCode = state.fromCode,
@@ -103,19 +104,19 @@ fun ConverterScreen(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                 horizontalArrangement = Arrangement.Center,
             ) {
-                IconButton(
+                AppIconButton(
                     onClick = viewModel::swap,
-                    backgroundColor = MiuixTheme.colorScheme.primary,
+                    backgroundColor = AppColors.primary,
                 ) {
-                    Icon(
+                    AppIcon(
                         imageVector = Icons.Filled.SwapVert,
                         contentDescription = stringResource(R.string.converter_swap),
-                        tint = MiuixTheme.colorScheme.onPrimary,
+                        tint = AppColors.onPrimary,
                     )
                 }
             }
 
-            SmallTitle(text = stringResource(R.string.converter_to))
+            AppSmallTitle(text = stringResource(R.string.converter_to))
             CurrencyField(
                 state = state,
                 selectedCode = state.toCode,
@@ -164,15 +165,14 @@ private fun AmountField(state: ConverterUiState, viewModel: ConverterViewModel) 
             )
         }
     }
-    SmallTitle(text = stringResource(R.string.converter_amount))
-    TextField(
+    AppSmallTitle(text = stringResource(R.string.converter_amount))
+    AppTextField(
         value = field,
         onValueChange = {
             field = it
             viewModel.setAmount(it.text)
         },
         label = stringResource(R.string.converter_amount),
-        useLabelAsPlaceholder = true,
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
         modifier = Modifier.fillMaxWidth(),
@@ -186,19 +186,19 @@ private fun CurrencyField(
     onClick: () -> Unit,
 ) {
     if (state.currencies.isEmpty()) {
-        Card(modifier = Modifier.fillMaxWidth()) {
-            Text(
+        AppCard(modifier = Modifier.fillMaxWidth()) {
+            AppText(
                 text = stringResource(R.string.converter_loading),
                 modifier = Modifier.padding(16.dp),
-                color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
+                color = AppColors.onSurfaceVariant,
             )
         }
         return
     }
     val selectedLabel = state.currencies.firstOrNull { it.code == selectedCode }?.label
         ?: selectedCode.uppercase()
-    Card(modifier = Modifier.fillMaxWidth()) {
-        ArrowPreference(
+    AppCard(modifier = Modifier.fillMaxWidth()) {
+        AppPreferenceRow(
             title = selectedLabel,
             onClick = onClick,
         )
@@ -208,7 +208,7 @@ private fun CurrencyField(
 @Composable
 private fun RecentConversions(state: ConverterUiState, viewModel: ConverterViewModel) {
     if (state.recents.isEmpty()) return
-    SmallTitle(text = stringResource(R.string.converter_recent))
+    AppSmallTitle(text = stringResource(R.string.converter_recent))
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -216,15 +216,16 @@ private fun RecentConversions(state: ConverterUiState, viewModel: ConverterViewM
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         state.recents.forEach { pair ->
-            Surface(
+            AppSurface(
                 onClick = { viewModel.applyRecent(pair) },
                 shape = RoundedCornerShape(16.dp),
-                color = MiuixTheme.colorScheme.secondaryContainer,
+                color = AppColors.secondaryContainer,
+                contentColor = AppColors.onSecondaryContainer,
             ) {
-                Text(
+                AppText(
                     text = pair.label,
                     modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
-                    color = MiuixTheme.colorScheme.onSecondaryContainer,
+                    color = AppColors.onSecondaryContainer,
                 )
             }
         }
@@ -256,31 +257,30 @@ private fun CurrencyPickerDialog(
     val others = filtered.filter { it.code !in favorites }
 
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
-        Surface(
+        AppSurface(
             modifier = Modifier.fillMaxWidth(0.92f),
             shape = RoundedCornerShape(24.dp),
-            color = MiuixTheme.colorScheme.surface,
+            color = AppColors.surface,
         ) {
             Column(modifier = Modifier.padding(vertical = 16.dp)) {
-                Text(
+                AppText(
                     text = title,
                     modifier = Modifier.padding(horizontal = 20.dp),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MiuixTheme.colorScheme.onSurface,
+                    color = AppColors.onSurface,
                 )
                 Spacer(Modifier.height(12.dp))
-                TextField(
+                AppTextField(
                     value = query,
                     onValueChange = { query = it },
                     label = stringResource(R.string.converter_search),
-                    useLabelAsPlaceholder = true,
                     singleLine = true,
                     leadingIcon = {
-                        Icon(
+                        AppIcon(
                             imageVector = Icons.Filled.Search,
                             contentDescription = null,
-                            tint = MiuixTheme.colorScheme.onSurfaceVariantSummary,
+                            tint = AppColors.onSurfaceVariant,
                             modifier = Modifier.padding(start = 12.dp),
                         )
                     },
@@ -292,20 +292,20 @@ private fun CurrencyPickerDialog(
                 LazyColumn(modifier = Modifier.heightIn(max = 420.dp)) {
                     if (filtered.isEmpty()) {
                         item {
-                            Text(
+                            AppText(
                                 text = stringResource(R.string.converter_no_results),
                                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 24.dp),
-                                color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
+                                color = AppColors.onSurfaceVariant,
                             )
                         }
                     }
                     if (favs.isNotEmpty()) {
-                        item { SmallTitle(text = stringResource(R.string.converter_favorites)) }
+                        item { AppSmallTitle(text = stringResource(R.string.converter_favorites)) }
                         items(favs, key = { "fav-${it.code}" }) { option ->
                             CurrencyRow(option, true, selectedCode, onSelect, onToggleFavorite)
                         }
                         if (others.isNotEmpty()) {
-                            item { SmallTitle(text = stringResource(R.string.converter_all)) }
+                            item { AppSmallTitle(text = stringResource(R.string.converter_all)) }
                         }
                     }
                     items(others, key = { it.code }) { option ->
@@ -325,32 +325,33 @@ private fun CurrencyRow(
     onSelect: (String) -> Unit,
     onToggleFavorite: (String) -> Unit,
 ) {
+    val selectClick = appClick { onSelect(option.code) }
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(start = 20.dp, end = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(
+        AppText(
             text = option.label,
             modifier = Modifier
                 .weight(1f)
-                .clickable { onSelect(option.code) }
+                .clickable { selectClick() }
                 .padding(top = 12.dp, bottom = 12.dp),
             color = if (option.code == selectedCode) {
-                MiuixTheme.colorScheme.primary
+                AppColors.primary
             } else {
-                MiuixTheme.colorScheme.onSurface
+                AppColors.onSurface
             },
         )
-        IconButton(onClick = { onToggleFavorite(option.code) }) {
-            Icon(
+        AppIconButton(onClick = { onToggleFavorite(option.code) }) {
+            AppIcon(
                 imageVector = if (isFavorite) Icons.Filled.Star else Icons.Filled.StarBorder,
                 contentDescription = stringResource(R.string.converter_favorite),
                 tint = if (isFavorite) {
-                    MiuixTheme.colorScheme.primary
+                    AppColors.primary
                 } else {
-                    MiuixTheme.colorScheme.onSurfaceVariantSummary
+                    AppColors.onSurfaceVariant
                 },
             )
         }
@@ -360,22 +361,22 @@ private fun CurrencyRow(
 @Composable
 private fun ResultCard(state: ConverterUiState) {
     val toCode = state.toCode.uppercase()
-    Card(modifier = Modifier.fillMaxWidth()) {
+    AppCard(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(
+            AppText(
                 text = if (state.result.isEmpty()) "-" else state.result,
                 fontSize = 34.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
-                color = MiuixTheme.colorScheme.onSurface,
+                color = AppColors.onSurface,
             )
             Spacer(Modifier.height(4.dp))
-            Text(
+            AppText(
                 text = toCode,
-                color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
+                color = AppColors.onSurfaceVariant,
             )
         }
     }
@@ -391,10 +392,10 @@ private fun StatusLine(state: ConverterUiState) {
             stringResource(R.string.converter_updated, formatTimestamp(state.updatedAtEpochMs))
         else -> stringResource(R.string.converter_updated_never)
     }
-    Text(
+    AppText(
         text = text,
         modifier = Modifier.fillMaxWidth(),
         textAlign = TextAlign.Center,
-        color = MiuixTheme.colorScheme.onBackgroundVariant,
+        color = AppColors.onBackgroundVariant,
     )
 }

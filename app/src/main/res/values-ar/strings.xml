@@ -24,15 +24,22 @@
 
     <string name="calculator_title">الآلة الحاسبة</string>
     <string name="calculator_error">خطأ</string>
+    <string name="calculator_backspace">مسح</string>
 
     <string name="settings_title">الإعدادات</string>
     <string name="settings_theme">السمة</string>
     <string name="settings_theme_system">النظام</string>
     <string name="settings_theme_light">فاتح</string>
     <string name="settings_theme_dark">داكن</string>
+    <string name="settings_design_style">نمط التصميم</string>
+    <string name="settings_design_miuix">Miuix</string>
+    <string name="settings_design_material3">Material Design 3</string>
     <string name="settings_navbar">شريط التنقل</string>
     <string name="settings_navbar_tabs">علامات تبويب</string>
     <string name="settings_navbar_slider">عائم</string>
+    <string name="settings_sound_feedback">أصوات الواجهة</string>
+    <string name="settings_sound_on">تشغيل</string>
+    <string name="settings_sound_off">إيقاف</string>
     <string name="settings_about">حول</string>
     <string name="settings_source">مصدر الأسعار</string>
     <string name="settings_license">الترخيص</string>

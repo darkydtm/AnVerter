@@ -8,6 +8,8 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.anverter.app.ui.NavBarStyle
+import com.anverter.app.ui.SoundFeedback
+import com.anverter.app.ui.UiStyle
 import com.anverter.app.ui.theme.ThemeMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -39,6 +41,26 @@ class SettingsStore(context: Context) {
         store.edit { it[KEY_NAV_BAR_STYLE] = style.name }
     }
 
+    val uiStyle: Flow<UiStyle> = store.data.map { prefs ->
+        prefs[KEY_UI_STYLE]
+            ?.let { runCatching { UiStyle.valueOf(it) }.getOrNull() }
+            ?: UiStyle.MIUIX
+    }
+
+    suspend fun setUiStyle(style: UiStyle) {
+        store.edit { it[KEY_UI_STYLE] = style.name }
+    }
+
+    val soundFeedback: Flow<SoundFeedback> = store.data.map { prefs ->
+        prefs[KEY_SOUND_FEEDBACK]
+            ?.let { runCatching { SoundFeedback.valueOf(it) }.getOrNull() }
+            ?: SoundFeedback.ON
+    }
+
+    suspend fun setSoundFeedback(sound: SoundFeedback) {
+        store.edit { it[KEY_SOUND_FEEDBACK] = sound.name }
+    }
+
     val favoriteCurrencies: Flow<Set<String>> = store.data.map { prefs ->
         prefs[KEY_FAVORITES] ?: emptySet()
     }
@@ -68,6 +90,8 @@ class SettingsStore(context: Context) {
     private companion object {
         val KEY_THEME_MODE = stringPreferencesKey("theme_mode")
         val KEY_NAV_BAR_STYLE = stringPreferencesKey("nav_bar_style")
+        val KEY_UI_STYLE = stringPreferencesKey("ui_style")
+        val KEY_SOUND_FEEDBACK = stringPreferencesKey("sound_feedback")
         val KEY_FAVORITES = stringSetPreferencesKey("favorite_currencies")
         val KEY_RECENTS = stringPreferencesKey("recent_conversions")
     }

@@ -24,15 +24,22 @@
 
     <string name="calculator_title">Calculatrice</string>
     <string name="calculator_error">Erreur</string>
+    <string name="calculator_backspace">Effacer</string>
 
     <string name="settings_title">Paramètres</string>
     <string name="settings_theme">Thème</string>
     <string name="settings_theme_system">Système</string>
     <string name="settings_theme_light">Clair</string>
     <string name="settings_theme_dark">Sombre</string>
+    <string name="settings_design_style">Style de design</string>
+    <string name="settings_design_miuix">Miuix</string>
+    <string name="settings_design_material3">Material Design 3</string>
     <string name="settings_navbar">Barre de navigation</string>
     <string name="settings_navbar_tabs">Onglets</string>
     <string name="settings_navbar_slider">Flottante</string>
+    <string name="settings_sound_feedback">Sons de l’interface</string>
+    <string name="settings_sound_on">Activés</string>
+    <string name="settings_sound_off">Désactivés</string>
     <string name="settings_about">À propos</string>
     <string name="settings_source">Source des taux</string>
     <string name="settings_license">Licence</string>

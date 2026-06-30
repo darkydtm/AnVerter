@@ -24,15 +24,22 @@
 
     <string name="calculator_title">कैलकुलेटर</string>
     <string name="calculator_error">त्रुटि</string>
+    <string name="calculator_backspace">बैकस्पेस</string>
 
     <string name="settings_title">सेटिंग्स</string>
     <string name="settings_theme">थीम</string>
     <string name="settings_theme_system">सिस्टम</string>
     <string name="settings_theme_light">लाइट</string>
     <string name="settings_theme_dark">डार्क</string>
+    <string name="settings_design_style">डिज़ाइन शैली</string>
+    <string name="settings_design_miuix">Miuix</string>
+    <string name="settings_design_material3">Material Design 3</string>
     <string name="settings_navbar">नेविगेशन बार</string>
     <string name="settings_navbar_tabs">टैब</string>
     <string name="settings_navbar_slider">फ़्लोटिंग</string>
+    <string name="settings_sound_feedback">इंटरफ़ेस ध्वनि</string>
+    <string name="settings_sound_on">चालू</string>
+    <string name="settings_sound_off">बंद</string>
     <string name="settings_about">ऐप के बारे में</string>
     <string name="settings_source">दरों का स्रोत</string>
     <string name="settings_license">लाइसेंस</string>
