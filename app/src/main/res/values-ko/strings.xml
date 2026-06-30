@@ -24,6 +24,9 @@
     <string name="settings_theme_system">시스템</string>
     <string name="settings_theme_light">라이트</string>
     <string name="settings_theme_dark">다크</string>
+    <string name="settings_navbar">탐색 바</string>
+    <string name="settings_navbar_tabs">탭</string>
+    <string name="settings_navbar_slider">플로팅</string>
     <string name="settings_about">정보</string>
     <string name="settings_source">환율 출처</string>
     <string name="settings_license">라이선스</string>

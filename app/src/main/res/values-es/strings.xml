@@ -24,6 +24,9 @@
     <string name="settings_theme_system">Sistema</string>
     <string name="settings_theme_light">Claro</string>
     <string name="settings_theme_dark">Oscuro</string>
+    <string name="settings_navbar">Barra de navegación</string>
+    <string name="settings_navbar_tabs">Pestañas</string>
+    <string name="settings_navbar_slider">Flotante</string>
     <string name="settings_about">Acerca de</string>
     <string name="settings_source">Fuente de tasas</string>
     <string name="settings_license">Licencia</string>

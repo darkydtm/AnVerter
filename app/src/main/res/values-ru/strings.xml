@@ -24,6 +24,9 @@
     <string name="settings_theme_system">Системная</string>
     <string name="settings_theme_light">Светлая</string>
     <string name="settings_theme_dark">Тёмная</string>
+    <string name="settings_navbar">Панель навигации</string>
+    <string name="settings_navbar_tabs">Вкладки</string>
+    <string name="settings_navbar_slider">Плавающая</string>
     <string name="settings_about">О приложении</string>
     <string name="settings_source">Источник курсов</string>
     <string name="settings_license">Лицензия</string>

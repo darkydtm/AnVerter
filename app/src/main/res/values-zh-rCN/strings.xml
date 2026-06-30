@@ -24,6 +24,9 @@
     <string name="settings_theme_system">跟随系统</string>
     <string name="settings_theme_light">浅色</string>
     <string name="settings_theme_dark">深色</string>
+    <string name="settings_navbar">导航栏</string>
+    <string name="settings_navbar_tabs">标签</string>
+    <string name="settings_navbar_slider">悬浮</string>
     <string name="settings_about">关于</string>
     <string name="settings_source">汇率来源</string>
     <string name="settings_license">许可证</string>

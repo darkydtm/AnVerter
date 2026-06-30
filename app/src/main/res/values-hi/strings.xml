@@ -24,6 +24,9 @@
     <string name="settings_theme_system">सिस्टम</string>
     <string name="settings_theme_light">लाइट</string>
     <string name="settings_theme_dark">डार्क</string>
+    <string name="settings_navbar">नेविगेशन बार</string>
+    <string name="settings_navbar_tabs">टैब</string>
+    <string name="settings_navbar_slider">फ़्लोटिंग</string>
     <string name="settings_about">ऐप के बारे में</string>
     <string name="settings_source">दरों का स्रोत</string>
     <string name="settings_license">लाइसेंस</string>
