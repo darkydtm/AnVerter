@@ -29,6 +29,8 @@ import com.anverter.app.feature.settings.SettingsViewModel
 import com.anverter.app.ui.theme.AnverterTheme
 import top.yukonga.miuix.kmp.basic.FloatingNavigationBar
 import top.yukonga.miuix.kmp.basic.FloatingNavigationBarItem
+import top.yukonga.miuix.kmp.basic.NavigationBar
+import top.yukonga.miuix.kmp.basic.NavigationBarItem
 import top.yukonga.miuix.kmp.basic.Scaffold
 
 private data class Tab(val labelRes: Int, val icon: ImageVector)
@@ -38,12 +40,14 @@ fun AnverterRoot(container: AppContainer) {
     val factory = remember(container) { anverterViewModelFactory(container) }
     val settingsViewModel: SettingsViewModel = viewModel(factory = factory)
     val themeMode by settingsViewModel.themeMode.collectAsStateWithLifecycle()
+    val navBarStyle by settingsViewModel.navBarStyle.collectAsStateWithLifecycle()
 
     AnverterTheme(themeMode = themeMode) {
         AnverterApp(
             converterViewModel = viewModel(factory = factory),
             calculatorViewModel = viewModel(factory = factory),
             settingsViewModel = settingsViewModel,
+            navBarStyle = navBarStyle,
         )
     }
 }
@@ -53,6 +57,7 @@ private fun AnverterApp(
     converterViewModel: ConverterViewModel,
     calculatorViewModel: CalculatorViewModel,
     settingsViewModel: SettingsViewModel,
+    navBarStyle: NavBarStyle,
 ) {
     val tabs = listOf(
         Tab(R.string.tab_converter, Icons.Filled.CurrencyExchange),
@@ -64,14 +69,27 @@ private fun AnverterApp(
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
-            FloatingNavigationBar {
-                tabs.forEachIndexed { index, tab ->
-                    FloatingNavigationBarItem(
-                        selected = selected == index,
-                        onClick = { selected = index },
-                        icon = tab.icon,
-                        label = stringResource(tab.labelRes),
-                    )
+            when (navBarStyle) {
+                NavBarStyle.SLIDER -> FloatingNavigationBar {
+                    tabs.forEachIndexed { index, tab ->
+                        FloatingNavigationBarItem(
+                            selected = selected == index,
+                            onClick = { selected = index },
+                            icon = tab.icon,
+                            label = stringResource(tab.labelRes),
+                        )
+                    }
+                }
+
+                NavBarStyle.TABS -> NavigationBar {
+                    tabs.forEachIndexed { index, tab ->
+                        NavigationBarItem(
+                            selected = selected == index,
+                            onClick = { selected = index },
+                            icon = tab.icon,
+                            label = stringResource(tab.labelRes),
+                        )
+                    }
                 }
             }
         },
