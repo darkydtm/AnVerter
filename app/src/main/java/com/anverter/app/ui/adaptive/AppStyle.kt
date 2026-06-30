@@ -13,6 +13,8 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -49,9 +51,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.awaitFirstDown
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.waitForUpOrCancellation
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
@@ -634,9 +634,9 @@ fun AppFloatingNavigationBar(
 	when (LocalUiStyle.current) {
 		UiStyle.MIUIX -> MiuixFloatingNavigationBar {
 			items.forEachIndexed { index, item ->
-				AppFloatingNavigationBarItem(
+				MiuixFloatingNavigationItemContent(
 					selected = selectedIndex == index,
-					onClick = { onItemClick(index) },
+					onClick = appClick { onItemClick(index) },
 					icon = item.icon,
 					label = item.label,
 				)
@@ -657,16 +657,32 @@ fun AppFloatingNavigationBar(
 }
 
 @Composable
-private fun RowScope.AppNavigationItemMotionBox(
+private fun AppNavigationItemMotionBox(
+	modifier: Modifier = Modifier,
 	content: @Composable () -> Unit,
 ) {
 	Box(
-		modifier = Modifier
-			.weight(1f)
-			.appPressedMotion(),
+		modifier = modifier.appPressedMotion(),
 		contentAlignment = Alignment.Center,
 	) {
 		content()
+	}
+}
+
+@Composable
+private fun MiuixFloatingNavigationItemContent(
+	selected: Boolean,
+	onClick: () -> Unit,
+	icon: ImageVector,
+	label: String,
+) {
+	AppNavigationItemMotionBox {
+		MiuixFloatingNavigationBarItem(
+			selected = selected,
+			onClick = onClick,
+			icon = icon,
+			label = label,
+		)
 	}
 }
 
@@ -679,7 +695,7 @@ fun RowScope.AppNavigationBarItem(
 ) {
 	val click = appClick(onClick)
 	when (LocalUiStyle.current) {
-		UiStyle.MIUIX -> AppNavigationItemMotionBox {
+		UiStyle.MIUIX -> AppNavigationItemMotionBox(modifier = Modifier.weight(1f)) {
 			MiuixNavigationBarItem(
 				selected = selected,
 				onClick = click,
@@ -711,7 +727,7 @@ fun RowScope.AppFloatingNavigationBarItem(
 ) {
 	val click = appClick(onClick)
 	when (LocalUiStyle.current) {
-		UiStyle.MIUIX -> AppNavigationItemMotionBox {
+		UiStyle.MIUIX -> AppNavigationItemMotionBox(modifier = Modifier.weight(1f)) {
 			MiuixFloatingNavigationBarItem(
 				selected = selected,
 				onClick = click,
