@@ -317,10 +317,7 @@ private fun RecentConversions(state: ConverterUiState, viewModel: ConverterViewM
 		horizontalArrangement = Arrangement.spacedBy(8.dp),
 		contentPadding = PaddingValues(horizontal = 2.dp, vertical = 4.dp),
 	) {
-		items(
-			items = state.recents,
-			key = { "${it.from}:${it.to}:${it.fromValue}:${it.toValue}" },
-		) { recent ->
+		items(state.recents) { recent ->
 			RecentConversionChip(recent, viewModel)
 		}
 	}
