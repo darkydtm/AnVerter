@@ -25,12 +25,13 @@
     <string name="converter_favorite">Toggle favorite</string>
 
     <string name="calculator_title">Calculator</string>
-    <string name="calculator_error">Error</string>
-    <string name="calculator_backspace">Backspace</string>
-    <string name="calculator_clear">Clear</string>
-    <string name="calculator_history">History</string>
+	<string name="calculator_error">Error</string>
+	<string name="calculator_backspace">Backspace</string>
+	<string name="calculator_clear">Clear</string>
+	<string name="calculator_history">History</string>
+	<string name="calculator_toggle_functions">Toggle functions</string>
 
-    <string name="settings_title">Settings</string>
+	<string name="settings_title">Settings</string>
     <string name="settings_theme">Theme</string>
     <string name="settings_theme_system">System</string>
     <string name="settings_theme_light">Light</string>

@@ -23,8 +23,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Backspace
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -68,6 +73,9 @@ fun CalculatorScreen(
 	modifier: Modifier = Modifier,
 ) {
 	val state by viewModel.state.collectAsStateWithLifecycle()
+	var extendedVisible by rememberSaveable(state.extendedMode) {
+		mutableStateOf(state.extendedMode)
+	}
 
 	Column(modifier = modifier.fillMaxSize()) {
 		AppTopBar(
@@ -83,11 +91,11 @@ fun CalculatorScreen(
 			},
 		)
 
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 16.dp),
+		Column(
+			modifier = Modifier
+				.weight(1f)
+				.fillMaxWidth()
+				.padding(horizontal = 24.dp, vertical = 16.dp),
 			verticalArrangement = Arrangement.Bottom,
 			horizontalAlignment = Alignment.End,
 		) {
@@ -109,9 +117,14 @@ fun CalculatorScreen(
 			) {
 				AppHistory(state.history)
 			}
-        }
+		}
 
-		Keypad(state.extendedMode, viewModel, bottomPadding)
+		Keypad(
+			extendedVisible = extendedVisible,
+			onExtendedVisibleToggle = { extendedVisible = !extendedVisible },
+			viewModel = viewModel,
+			bottomPadding = bottomPadding,
+		)
 	}
 }
 
@@ -143,17 +156,17 @@ private fun AnimatedCalculatorText(
 
 @Composable
 private fun AppHistory(history: List<CalculatorHistoryItem>) {
-    AppCard(modifier = Modifier.fillMaxWidth()) {
-        Column(
-            modifier = Modifier.padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            AppText(
-                text = stringResource(R.string.calculator_history),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
-                color = AppColors.onSurfaceVariant,
-            )
+	AppCard(modifier = Modifier.fillMaxWidth()) {
+		Column(
+			modifier = Modifier.padding(12.dp),
+			verticalArrangement = Arrangement.spacedBy(4.dp),
+		) {
+			AppText(
+				text = stringResource(R.string.calculator_history),
+				fontSize = 14.sp,
+				fontWeight = FontWeight.Medium,
+				color = AppColors.onSurfaceVariant,
+			)
 			history.take(4).forEach { item ->
 				AnimatedContent(
 					targetState = item,
@@ -172,13 +185,14 @@ private fun AppHistory(history: List<CalculatorHistoryItem>) {
 					)
 				}
 			}
-        }
-    }
+		}
+	}
 }
 
 @Composable
 private fun Keypad(
-	extendedMode: Boolean,
+	extendedVisible: Boolean,
+	onExtendedVisibleToggle: () -> Unit,
 	viewModel: CalculatorViewModel,
 	bottomPadding: androidx.compose.ui.unit.Dp,
 ) {
@@ -219,6 +233,14 @@ private fun Keypad(
 				CalculatorKey(
 					label = "",
 					kind = KeyKind.FUNCTION,
+					icon = if (extendedVisible) Icons.Filled.KeyboardArrowDown else Icons.Filled.KeyboardArrowUp,
+					contentDescription = R.string.calculator_toggle_functions,
+				) { onExtendedVisibleToggle() },
+			)
+			Key(
+				CalculatorKey(
+					label = "",
+					kind = KeyKind.FUNCTION,
 					icon = Icons.Filled.Backspace,
 					contentDescription = R.string.calculator_backspace,
 				) { viewModel.backspace() },
@@ -226,11 +248,11 @@ private fun Keypad(
 			Key(CalculatorKey("=", KeyKind.EQUALS) { viewModel.equals() })
 		}
 		AnimatedVisibility(
-			visible = extendedMode,
+			visible = extendedVisible,
 			enter = fadeIn(calculatorSpring) + scaleIn(calculatorSpring, initialScale = 0.94f),
 			exit = fadeOut(calculatorSpring) + scaleOut(calculatorSpring, targetScale = 0.94f),
 		) {
-			Column {
+			Column(modifier = Modifier.fillMaxWidth()) {
 				Row(Modifier.fillMaxWidth()) {
 					Key(CalculatorKey("√", KeyKind.FUNCTION) { viewModel.input("√") })
 					Key(CalculatorKey("x²", KeyKind.FUNCTION) { viewModel.input("^2") })
@@ -239,9 +261,24 @@ private fun Keypad(
 				}
 				Row(Modifier.fillMaxWidth()) {
 					Key(CalculatorKey("%", KeyKind.FUNCTION) { viewModel.input("%") })
-					Key(CalculatorKey("(", KeyKind.FUNCTION) { viewModel.input("(") })
-					Key(CalculatorKey(")", KeyKind.FUNCTION) { viewModel.input(")") })
-					Key(CalculatorKey("C", KeyKind.FUNCTION) { viewModel.clear() })
+					Box(
+						modifier = Modifier
+							.weight(1f)
+							.aspectRatio(1f)
+							.padding(6.dp),
+					)
+					Box(
+						modifier = Modifier
+							.weight(1f)
+							.aspectRatio(1f)
+							.padding(6.dp),
+					)
+					Box(
+						modifier = Modifier
+							.weight(1f)
+							.aspectRatio(1f)
+							.padding(6.dp),
+					)
 				}
 			}
 		}
