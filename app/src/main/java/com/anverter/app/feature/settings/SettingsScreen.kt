@@ -37,7 +37,7 @@ import com.anverter.app.ui.adaptive.AppSmallTitle
 import com.anverter.app.ui.adaptive.AppTopBar
 import com.anverter.app.ui.theme.ThemeMode
 
-private val THEME_ORDER = listOf(ThemeMode.SYSTEM, ThemeMode.LIGHT, ThemeMode.DARK)
+private val THEME_ORDER = listOf(ThemeMode.SYSTEM, ThemeMode.LIGHT, ThemeMode.DARK, ThemeMode.AMOLED)
 private val UI_STYLE_ORDER = listOf(UiStyle.MIUIX, UiStyle.MATERIAL3)
 private val NAV_BAR_ORDER = listOf(NavBarStyle.TABS, NavBarStyle.SLIDER)
 private val SOUND_ORDER = listOf(SoundFeedback.ON, SoundFeedback.OFF)
@@ -58,6 +58,7 @@ fun SettingsScreen(
         stringResource(R.string.settings_theme_system),
         stringResource(R.string.settings_theme_light),
         stringResource(R.string.settings_theme_dark),
+        stringResource(R.string.settings_theme_amoled),
     )
 
     val navBarLabels = listOf(

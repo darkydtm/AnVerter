@@ -3,6 +3,7 @@ package com.anverter.app.ui
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,6 +33,7 @@ import com.anverter.app.feature.converter.ConverterScreen
 import com.anverter.app.feature.converter.ConverterViewModel
 import com.anverter.app.feature.settings.SettingsScreen
 import com.anverter.app.feature.settings.SettingsViewModel
+import com.anverter.app.ui.adaptive.AppColors
 import com.anverter.app.ui.adaptive.AppNavigationItem
 import com.anverter.app.ui.adaptive.AppFloatingNavigationBar
 import com.anverter.app.ui.adaptive.AppNavigationBar
@@ -196,7 +198,9 @@ private fun AnverterApp(
         val bottomPadding = padding.calculateBottomPadding()
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(AppColors.background),
             beyondViewportPageCount = 1,
         ) { page ->
             when (page) {

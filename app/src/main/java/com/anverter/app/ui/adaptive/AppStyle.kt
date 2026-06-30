@@ -67,6 +67,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.anverter.app.ui.SoundFeedback
 import com.anverter.app.ui.UiStyle
+import com.anverter.app.ui.theme.LocalAppAmoledTheme
 import com.anverter.app.ui.theme.LocalAppDarkTheme
 import androidx.compose.material3.Card as MaterialCard
 import androidx.compose.material3.CardDefaults as MaterialCardDefaults
@@ -795,6 +796,8 @@ object AppColors {
 
 	private val darkBackground = Color(0xFF101418)
 	private val darkSurface = Color(0xFF1A222B)
+	private val amoledBackground = Color(0xFF000000)
+	private val amoledSurface = Color(0xFF000000)
 	private val darkPrimary = Color(0xFF55D89A)
 	private val darkPrimaryContainer = Color(0xFF1F5A3D)
 	private val darkSecondaryContainer = Color(0xFF5A4B0B)
@@ -809,8 +812,15 @@ object AppColors {
 	private val isDarkTheme: Boolean
 		@Composable get() = LocalAppDarkTheme.current
 
+	private val isAmoledTheme: Boolean
+		@Composable get() = LocalAppAmoledTheme.current
+
 	val background: Color
-		@Composable get() = if (isDarkTheme) darkBackground else lightBackground
+		@Composable get() = when {
+			isAmoledTheme -> amoledBackground
+			isDarkTheme -> darkBackground
+			else -> lightBackground
+		}
 
 	val primary: Color
 		@Composable get() = if (isDarkTheme) darkPrimary else lightPrimary
@@ -819,7 +829,11 @@ object AppColors {
 		@Composable get() = if (isDarkTheme) darkOnPrimary else lightOnPrimary
 
 	val surface: Color
-		@Composable get() = if (isDarkTheme) darkSurface else lightSurface
+		@Composable get() = when {
+			isAmoledTheme -> amoledSurface
+			isDarkTheme -> darkSurface
+			else -> lightSurface
+		}
 
 	val onSurface: Color
 		@Composable get() = if (isDarkTheme) darkOnSurface else lightOnSurface

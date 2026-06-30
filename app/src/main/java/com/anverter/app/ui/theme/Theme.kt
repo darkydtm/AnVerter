@@ -13,9 +13,10 @@ import com.anverter.app.ui.UiStyle
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.theme.platformDynamicColors
 
-enum class ThemeMode { SYSTEM, LIGHT, DARK }
+enum class ThemeMode { SYSTEM, LIGHT, DARK, AMOLED }
 
 val LocalAppDarkTheme = compositionLocalOf { false }
+val LocalAppAmoledTheme = compositionLocalOf { false }
 
 private val appLightColorScheme: ColorScheme = lightColorScheme(
 	primary = Color(0xFF0E9F6E),
@@ -53,6 +54,24 @@ private val appDarkColorScheme: ColorScheme = darkColorScheme(
 	error = Color(0xFFFFB4AB),
 )
 
+private val appAmoledColorScheme: ColorScheme = darkColorScheme(
+	primary = Color(0xFF55D89A),
+	onPrimary = Color(0xFF053122),
+	primaryContainer = Color(0xFF163D2B),
+	onPrimaryContainer = Color(0xFFD7F8E3),
+	secondaryContainer = Color(0xFF403500),
+	onSecondaryContainer = Color(0xFFFFF2A8),
+	tertiaryContainer = Color(0xFF4F261D),
+	onTertiaryContainer = Color(0xFFFFDBD1),
+	background = Color(0xFF000000),
+	onBackground = Color(0xFFEAF1F8),
+	surface = Color(0xFF000000),
+	onSurface = Color(0xFFEAF1F8),
+	surfaceVariant = Color(0xFF1C1C1C),
+	onSurfaceVariant = Color(0xFFBEC7D2),
+	error = Color(0xFFFFB4AB),
+)
+
 /**
  * Wraps content in the selected UI style and derives light/dark colors from [themeMode].
  * Miuix and Material 3 both use dynamic system colors on Android 12+.
@@ -67,15 +86,24 @@ fun AnverterTheme(
 		ThemeMode.SYSTEM -> isSystemInDarkTheme()
 		ThemeMode.LIGHT -> false
 		ThemeMode.DARK -> true
+		ThemeMode.AMOLED -> true
 	}
-	CompositionLocalProvider(LocalAppDarkTheme provides dark) {
+	val amoled = themeMode == ThemeMode.AMOLED
+	CompositionLocalProvider(
+		LocalAppDarkTheme provides dark,
+		LocalAppAmoledTheme provides amoled,
+	) {
 		when (uiStyle) {
 			UiStyle.MIUIX -> MiuixTheme(
 				colors = platformDynamicColors(dark = dark),
 				content = content,
 			)
 			UiStyle.MATERIAL3 -> MaterialTheme(
-				colorScheme = if (dark) appDarkColorScheme else appLightColorScheme,
+				colorScheme = when {
+					amoled -> appAmoledColorScheme
+					dark -> appDarkColorScheme
+					else -> appLightColorScheme
+				},
 				content = content,
 			)
 		}
