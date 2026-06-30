@@ -11,6 +11,7 @@ import com.anverter.app.ui.NavBarStyle
 import com.anverter.app.ui.theme.ThemeMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 private val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
