@@ -41,7 +41,6 @@ private val THEME_ORDER = listOf(ThemeMode.SYSTEM, ThemeMode.LIGHT, ThemeMode.DA
 private val UI_STYLE_ORDER = listOf(UiStyle.MIUIX, UiStyle.MATERIAL3)
 private val NAV_BAR_ORDER = listOf(NavBarStyle.TABS, NavBarStyle.SLIDER)
 private val SOUND_ORDER = listOf(SoundFeedback.ON, SoundFeedback.OFF)
-private val CALCULATOR_ORDER = listOf(false, true)
 private const val GPL_URL = "https://www.gnu.org/licenses/gpl-3.0.html"
 
 @Composable
@@ -55,8 +54,6 @@ fun SettingsScreen(
     val uiStyle by viewModel.uiStyle.collectAsStateWithLifecycle()
     val navBarStyle by viewModel.navBarStyle.collectAsStateWithLifecycle()
     val soundFeedback by viewModel.soundFeedback.collectAsStateWithLifecycle()
-    val calculatorExtendedMode by viewModel.calculatorExtendedMode.collectAsStateWithLifecycle()
-
     val themeLabels = listOf(
         stringResource(R.string.settings_theme_system),
         stringResource(R.string.settings_theme_light),
@@ -126,20 +123,6 @@ fun SettingsScreen(
                 selectedIndex = SOUND_ORDER.indexOf(soundFeedback).coerceAtLeast(0),
                 onSelectedIndexChange = { index -> viewModel.setSoundFeedback(SOUND_ORDER[index]) },
                 icon = Icons.Filled.VolumeUp,
-            )
-        }
-
-        AppSmallTitle(text = stringResource(R.string.settings_calculator))
-        AppCard(modifier = Modifier.fillMaxWidth()) {
-            AppDropdownPreference(
-                title = stringResource(R.string.settings_calculator),
-                items = listOf(
-                    stringResource(R.string.settings_calculator_basic),
-                    stringResource(R.string.settings_calculator_extended),
-                ),
-                selectedIndex = CALCULATOR_ORDER.indexOf(calculatorExtendedMode).coerceAtLeast(0),
-                onSelectedIndexChange = { index -> viewModel.setCalculatorExtendedMode(CALCULATOR_ORDER[index]) },
-                icon = Icons.Filled.Style,
             )
         }
 
