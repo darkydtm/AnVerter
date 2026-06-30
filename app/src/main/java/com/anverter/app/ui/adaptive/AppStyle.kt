@@ -636,7 +636,6 @@ fun AppHalfSheet(
 		containerColor = AppColors.surface,
 		contentColor = AppColors.onSurface,
 		shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
-		windowInsets = WindowInsets(0, 0, 0, 0),
 	) {
 		androidx.compose.foundation.layout.Column(
 			modifier = modifier
