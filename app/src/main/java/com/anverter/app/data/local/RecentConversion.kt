@@ -6,6 +6,9 @@ import kotlinx.serialization.Serializable
 data class RecentConversion(
     val from: String,
     val to: String,
+    val fromValue: String = "",
+    val toValue: String = "",
+    val timestampEpochMs: Long = 0L,
 )
 
 internal const val MAX_RECENT_CONVERSIONS = 8

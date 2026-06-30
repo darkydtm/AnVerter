@@ -27,6 +27,8 @@
     <string name="calculator_title">Calculator</string>
     <string name="calculator_error">Error</string>
     <string name="calculator_backspace">Backspace</string>
+    <string name="calculator_clear">Clear</string>
+    <string name="calculator_history">History</string>
 
     <string name="settings_title">Settings</string>
     <string name="settings_theme">Theme</string>
@@ -42,6 +44,9 @@
     <string name="settings_sound_feedback">Sound feedback</string>
     <string name="settings_sound_on">On</string>
     <string name="settings_sound_off">Off</string>
+    <string name="settings_calculator">Calculator</string>
+    <string name="settings_calculator_basic">Basic</string>
+    <string name="settings_calculator_extended">Extended</string>
     <string name="settings_about">About</string>
     <string name="settings_source">Rates source</string>
     <string name="settings_source_value" translatable="false">CoinGecko · /exchange_rates</string>

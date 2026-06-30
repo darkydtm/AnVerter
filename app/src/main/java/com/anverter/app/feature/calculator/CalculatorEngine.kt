@@ -2,6 +2,7 @@ package com.anverter.app.feature.calculator
 
 import java.math.BigDecimal
 import java.math.RoundingMode
+import kotlin.math.pow
 
 /**
  * Pure infix expression evaluator (shunting-yard). Supports + - * / with parentheses,
@@ -14,6 +15,7 @@ object CalculatorEngine {
     private sealed interface Token {
         data class Num(val value: Double) : Token
         data class Op(val symbol: Char, val precedence: Int, val rightAssoc: Boolean, val unary: Boolean) : Token
+        data class Func(val name: String) : Token
         data object LParen : Token
         data object RParen : Token
     }
@@ -56,8 +58,12 @@ object CalculatorEngine {
 
                 c == '(' -> { tokens += Token.LParen; i++ }
                 c == ')' -> { tokens += Token.RParen; i++ }
+                c == '√' -> { tokens += Token.Func("sqrt"); i++ }
 
-                c == '+' || c == '-' || c == '*' || c == '/' -> {
+                c == '!' -> { tokens += Token.Func("fact"); i++ }
+                c == '%' -> { tokens += Token.Func("percent"); i++ }
+
+                c == '+' || c == '-' || c == '*' || c == '/' || c == '^' -> {
                     val prev = tokens.lastOrNull()
                     val isUnary = prev == null || prev is Token.Op || prev is Token.LParen
                     when {
@@ -65,6 +71,7 @@ object CalculatorEngine {
                         isUnary && c == '+' -> { /* unary plus is a no-op */ }
                         isUnary -> throw CalculatorException("Unexpected operator: $c")
                         c == '+' || c == '-' -> tokens += Token.Op(c, 2, rightAssoc = false, unary = false)
+                        c == '^' -> tokens += Token.Op(c, 4, rightAssoc = true, unary = false)
                         else -> tokens += Token.Op(c, 3, rightAssoc = false, unary = false)
                     }
                     i++
@@ -96,6 +103,7 @@ object CalculatorEngine {
                     }
                     stack.addLast(token)
                 }
+                is Token.Func -> stack.addLast(token)
                 Token.LParen -> stack.addLast(token)
                 Token.RParen -> {
                     while (stack.lastOrNull() != null && stack.last() != Token.LParen) {
@@ -129,6 +137,10 @@ object CalculatorEngine {
                         stack.addLast(apply(token.symbol, a, b))
                     }
                 }
+                is Token.Func -> {
+                    val value = stack.removeLastOrNull() ?: throw CalculatorException("Invalid expression")
+                    stack.addLast(applyFunc(token.name, value))
+                }
                 else -> throw CalculatorException("Invalid expression")
             }
         }
@@ -141,7 +153,28 @@ object CalculatorEngine {
         '-' -> a - b
         '*' -> a * b
         '/' -> if (b == 0.0) throw CalculatorException("Division by zero") else a / b
+        '^' -> a.pow(b)
         else -> throw CalculatorException("Unknown operator: $symbol")
+    }
+
+    private fun applyFunc(name: String, value: Double): Double = when (name) {
+        "fact" -> factorial(value)
+        "percent" -> value / 100.0
+        "sqrt" -> if (value < 0) throw CalculatorException("Invalid square root") else kotlin.math.sqrt(value)
+        else -> throw CalculatorException("Unknown function: $name")
+    }
+
+    private fun factorial(value: Double): Double {
+        if (!value.isFinite() || value < 0 || value != kotlin.math.floor(value)) {
+            throw CalculatorException("Invalid factorial")
+        }
+        var result = 1.0
+        var current = value.toLong()
+        while (current > 1) {
+            result *= current
+            current--
+        }
+        return result
     }
 }
 

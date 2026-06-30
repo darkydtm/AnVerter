@@ -17,6 +17,6 @@ fun anverterViewModelFactory(container: AppContainer): ViewModelProvider.Factory
             container.settingsStore,
         )
     }
-    initializer { CalculatorViewModel() }
+    initializer { CalculatorViewModel(container.settingsStore) }
     initializer { SettingsViewModel(container.settingsStore) }
 }

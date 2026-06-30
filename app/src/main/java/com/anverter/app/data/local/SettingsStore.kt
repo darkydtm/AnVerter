@@ -61,6 +61,14 @@ class SettingsStore(context: Context) {
         store.edit { it[KEY_SOUND_FEEDBACK] = sound.name }
     }
 
+    val calculatorExtendedMode: Flow<Boolean> = store.data.map { prefs ->
+        prefs[KEY_CALCULATOR_EXTENDED_MODE]?.toBooleanStrictOrNull() ?: false
+    }
+
+    suspend fun setCalculatorExtendedMode(enabled: Boolean) {
+        store.edit { it[KEY_CALCULATOR_EXTENDED_MODE] = enabled.toString() }
+    }
+
     val favoriteCurrencies: Flow<Set<String>> = store.data.map { prefs ->
         prefs[KEY_FAVORITES] ?: emptySet()
     }
@@ -87,6 +95,21 @@ class SettingsStore(context: Context) {
         }
     }
 
+    val calculatorHistory: Flow<List<CalculatorHistoryItem>> = store.data.map { prefs ->
+        prefs[KEY_CALCULATOR_HISTORY]?.let {
+            runCatching { Json.decodeFromString<List<CalculatorHistoryItem>>(it) }.getOrNull()
+        } ?: emptyList()
+    }
+
+    suspend fun addCalculatorHistory(item: CalculatorHistoryItem) {
+        store.edit { prefs ->
+            val current = prefs[KEY_CALCULATOR_HISTORY]
+                ?.let { runCatching { Json.decodeFromString<List<CalculatorHistoryItem>>(it) }.getOrNull() }
+                ?: emptyList()
+            prefs[KEY_CALCULATOR_HISTORY] = Json.encodeToString((listOf(item) + current).take(MAX_CALCULATOR_HISTORY))
+        }
+    }
+
     private companion object {
         val KEY_THEME_MODE = stringPreferencesKey("theme_mode")
         val KEY_NAV_BAR_STYLE = stringPreferencesKey("nav_bar_style")
@@ -94,5 +117,7 @@ class SettingsStore(context: Context) {
         val KEY_SOUND_FEEDBACK = stringPreferencesKey("sound_feedback")
         val KEY_FAVORITES = stringSetPreferencesKey("favorite_currencies")
         val KEY_RECENTS = stringPreferencesKey("recent_conversions")
+        val KEY_CALCULATOR_HISTORY = stringPreferencesKey("calculator_history")
+        val KEY_CALCULATOR_EXTENDED_MODE = stringPreferencesKey("calculator_extended_mode")
     }
 }

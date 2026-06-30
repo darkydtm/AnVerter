@@ -55,4 +55,14 @@ class SettingsViewModel(
     fun setSoundFeedback(sound: SoundFeedback) {
         viewModelScope.launch { store.setSoundFeedback(sound) }
     }
+
+    val calculatorExtendedMode: StateFlow<Boolean> = store.calculatorExtendedMode.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = false,
+    )
+
+    fun setCalculatorExtendedMode(enabled: Boolean) {
+        viewModelScope.launch { store.setCalculatorExtendedMode(enabled) }
+    }
 }

@@ -25,6 +25,8 @@ data class CurrencyOption(
 data class RecentPair(
     val from: String,
     val to: String,
+    val fromValue: String,
+    val toValue: String,
     val label: String,
 )
 
@@ -36,11 +38,17 @@ data class ConverterUiState(
     val recents: List<RecentPair> = emptyList(),
     val fromCode: String = "usd",
     val toCode: String = "btc",
-    val amountInput: String = "1",
-    val result: String = "",
+    val fromAmountInput: String = "1",
+    val toAmountInput: String = "",
+    val editingSide: ConversionSide = ConversionSide.FROM,
     val updatedAtEpochMs: Long? = null,
     val error: Boolean = false,
 )
+
+enum class ConversionSide {
+    FROM,
+    TO,
+}
 
 class ConverterViewModel(
     private val repository: RatesRepository,
@@ -128,25 +136,44 @@ class ConverterViewModel(
         }
     }
 
-    fun setAmount(input: String) {
-        _state.update { it.copy(amountInput = input.filterAmountInput()) }
+    fun setFromAmount(input: String) {
+        _state.update { it.copy(fromAmountInput = input.filterAmountInput(), editingSide = ConversionSide.FROM) }
         recompute()
+        recordRecent()
+    }
+
+    fun setToAmount(input: String) {
+        _state.update { it.copy(toAmountInput = input.filterAmountInput(), editingSide = ConversionSide.TO) }
+        recompute()
+        recordRecent()
     }
 
     fun setFrom(code: String) {
-        _state.update { it.copy(fromCode = code) }
+        _state.update { it.copy(fromCode = code, editingSide = ConversionSide.FROM) }
         recompute()
         recordRecent()
     }
 
     fun setTo(code: String) {
-        _state.update { it.copy(toCode = code) }
+        _state.update { it.copy(toCode = code, editingSide = ConversionSide.TO) }
         recompute()
         recordRecent()
     }
 
     fun swap() {
-        _state.update { it.copy(fromCode = it.toCode, toCode = it.fromCode) }
+        _state.update {
+            val swappedEditingSide = when (it.editingSide) {
+                ConversionSide.FROM -> ConversionSide.TO
+                ConversionSide.TO -> ConversionSide.FROM
+            }
+            it.copy(
+                fromCode = it.toCode,
+                toCode = it.fromCode,
+                fromAmountInput = it.toAmountInput,
+                toAmountInput = it.fromAmountInput,
+                editingSide = swappedEditingSide,
+            )
+        }
         recompute()
         recordRecent()
     }
@@ -156,7 +183,15 @@ class ConverterViewModel(
     }
 
     fun applyRecent(pair: RecentPair) {
-        _state.update { it.copy(fromCode = pair.from, toCode = pair.to) }
+        _state.update {
+            it.copy(
+                fromCode = pair.from,
+                toCode = pair.to,
+                fromAmountInput = pair.fromValue,
+                toAmountInput = pair.toValue,
+                editingSide = ConversionSide.FROM,
+            )
+        }
         recompute()
         recordRecent()
     }
@@ -165,9 +200,23 @@ class ConverterViewModel(
         val state = _state.value
         if (state.fromCode == state.toCode) return
         val rates = snapshot?.rates ?: return
-        if (rates[state.fromCode] == null || rates[state.toCode] == null) return
+        val from = rates[state.fromCode] ?: return
+        val to = rates[state.toCode] ?: return
+        val fromValue = state.fromAmountInput
+        val toValue = when (state.editingSide) {
+            ConversionSide.FROM -> formatAmount(Converter.convert(parseAmount(state.fromAmountInput), from, to), to.type)
+            ConversionSide.TO -> state.toAmountInput
+        }
         viewModelScope.launch {
-            settings.addRecentConversion(RecentConversion(state.fromCode, state.toCode))
+            settings.addRecentConversion(
+                RecentConversion(
+                    from = state.fromCode,
+                    to = state.toCode,
+                    fromValue = fromValue,
+                    toValue = toValue,
+                    timestampEpochMs = System.currentTimeMillis(),
+                ),
+            )
         }
     }
 
@@ -177,11 +226,29 @@ class ConverterViewModel(
         val from = rates[state.fromCode]
         val to = rates[state.toCode]
         if (from == null || to == null) {
-            _state.update { it.copy(result = "") }
+            _state.update {
+                when (state.editingSide) {
+                    ConversionSide.FROM -> it.copy(toAmountInput = "")
+                    ConversionSide.TO -> it.copy(fromAmountInput = "")
+                }
+            }
             return
         }
-        val value = Converter.convert(parseAmount(state.amountInput), from, to)
-        _state.update { it.copy(result = formatAmount(value, to.type)) }
+        when (state.editingSide) {
+            ConversionSide.FROM -> {
+                val value = Converter.convert(parseAmount(state.fromAmountInput), from, to)
+                _state.update {
+                    it.copy(toAmountInput = formatAmount(value, to.type))
+                }
+            }
+
+            ConversionSide.TO -> {
+                val value = Converter.convert(parseAmount(state.toAmountInput), to, from)
+                _state.update {
+                    it.copy(fromAmountInput = formatAmount(value, from.type))
+                }
+            }
+        }
     }
 
     private fun RatesSnapshot.toOptions(): List<CurrencyOption> =
@@ -196,7 +263,9 @@ class ConverterViewModel(
         RecentPair(
             from = recent.from,
             to = recent.to,
-            label = "${recent.from.uppercase()} → ${recent.to.uppercase()}",
+            fromValue = recent.fromValue,
+            toValue = recent.toValue,
+            label = "${recent.fromValue} ${recent.from.uppercase()} → ${recent.toValue} ${recent.to.uppercase()}",
         )
     }
 
