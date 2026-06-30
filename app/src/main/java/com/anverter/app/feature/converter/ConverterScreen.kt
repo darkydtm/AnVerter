@@ -1,5 +1,16 @@
 package com.anverter.app.feature.converter
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.using
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +25,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -58,6 +70,11 @@ import com.anverter.app.ui.adaptive.appClick
 
 private enum class PickerTarget { FROM, TO }
 
+private val converterSpring = spring<Float>(
+	dampingRatio = Spring.DampingRatioMediumBouncy,
+	stiffness = Spring.StiffnessMediumLow,
+)
+
 @Composable
 fun ConverterScreen(
 	viewModel: ConverterViewModel,
@@ -72,9 +89,9 @@ fun ConverterScreen(
 		onPauseOrDispose { viewModel.onPaused() }
 	}
 
-	BoxWithConstraints(modifier = modifier.fillMaxSize().imePadding()) {
+	BoxWithConstraints(modifier = modifier.fillMaxSize()) {
 		val compact = maxHeight < 620.dp
-		Column(modifier = Modifier.fillMaxSize()) {
+		Column(modifier = Modifier.fillMaxSize().imePadding()) {
 			AppTopBar(
 				title = stringResource(R.string.converter_title),
 				actions = {
@@ -105,8 +122,24 @@ fun ConverterScreen(
 				)
 
 				Spacer(Modifier.height(8.dp))
-				StatusLine(state)
-				RecentConversions(state, viewModel)
+				AnimatedContent(
+					targetState = state.statusText(),
+					transitionSpec = {
+						(fadeIn(converterSpring) + scaleIn(converterSpring, initialScale = 0.97f))
+							.togetherWith(fadeOut(converterSpring) + scaleOut(converterSpring, targetScale = 1.03f))
+							.using(SizeTransform(clip = false))
+					},
+					label = "converter-status",
+				) { status ->
+					StatusLine(status)
+				}
+				AnimatedVisibility(
+					visible = state.recents.isNotEmpty(),
+					enter = fadeIn(converterSpring) + scaleIn(converterSpring, initialScale = 0.97f),
+					exit = fadeOut(converterSpring) + scaleOut(converterSpring, targetScale = 0.97f),
+				) {
+					RecentConversions(state, viewModel)
+				}
 				Spacer(Modifier.height(bottomPadding + 16.dp))
 			}
 		}
@@ -232,11 +265,21 @@ private fun ConversionField(
 			keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
 			modifier = Modifier.fillMaxWidth(),
 		)
-		AppCard(modifier = Modifier.fillMaxWidth()) {
-			AppPreferenceRow(
-				title = currencyLabel(currencies, currencyCode),
-				onClick = onCurrencyClick,
-			)
+		AnimatedContent(
+			targetState = currencyLabel(currencies, currencyCode),
+			transitionSpec = {
+				(fadeIn(converterSpring) + scaleIn(converterSpring, initialScale = 0.97f))
+					.togetherWith(fadeOut(converterSpring) + scaleOut(converterSpring, targetScale = 1.03f))
+					.using(SizeTransform(clip = false))
+			},
+			label = "converter-currency-field",
+		) { label ->
+			AppCard(modifier = Modifier.fillMaxWidth()) {
+				AppPreferenceRow(
+					title = label,
+					onClick = onCurrencyClick,
+				)
+			}
 		}
 	}
 }
@@ -246,7 +289,6 @@ private fun currencyLabel(currencies: List<CurrencyOption>, currencyCode: String
 
 @Composable
 private fun RecentConversions(state: ConverterUiState, viewModel: ConverterViewModel) {
-	if (state.recents.isEmpty()) return
 	AppSmallTitle(text = stringResource(R.string.converter_recent))
 	Row(
 		modifier = Modifier
@@ -254,20 +296,30 @@ private fun RecentConversions(state: ConverterUiState, viewModel: ConverterViewM
 			.horizontalScroll(rememberScrollState()),
 		horizontalArrangement = Arrangement.spacedBy(8.dp),
 	) {
-        state.recents.forEach { pair ->
-            AppSurface(
-                onClick = { viewModel.applyRecent(pair) },
-                shape = RoundedCornerShape(16.dp),
-                color = AppColors.secondaryContainer,
-                contentColor = AppColors.onSecondaryContainer,
-            ) {
-                AppText(
-                    text = pair.label,
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
-                    color = AppColors.onSecondaryContainer,
-                )
-            }
-        }
+		state.recents.forEach { pair ->
+			AnimatedContent(
+				targetState = pair,
+				transitionSpec = {
+					(fadeIn(converterSpring) + scaleIn(converterSpring, initialScale = 0.95f))
+						.togetherWith(fadeOut(converterSpring))
+						.using(SizeTransform(clip = false))
+				},
+				label = "converter-recent",
+			) { recent ->
+				AppSurface(
+					onClick = { viewModel.applyRecent(recent) },
+					shape = RoundedCornerShape(16.dp),
+					color = AppColors.secondaryContainer,
+					contentColor = AppColors.onSecondaryContainer,
+				) {
+					AppText(
+						text = recent.label,
+						modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+						color = AppColors.onSecondaryContainer,
+					)
+				}
+			}
+		}
 	}
 }
 
@@ -357,7 +409,7 @@ private fun CurrencyPickerDialog(
 }
 
 @Composable
-private fun CurrencyRow(
+private fun LazyItemScope.CurrencyRow(
 	option: CurrencyOption,
 	isFavorite: Boolean,
 	selectedCode: String,
@@ -368,6 +420,7 @@ private fun CurrencyRow(
 	Row(
 		modifier = Modifier
 			.fillMaxWidth()
+			.animateItem()
 			.padding(start = 20.dp, end = 8.dp),
 		verticalAlignment = Alignment.CenterVertically,
 	) {
@@ -390,19 +443,21 @@ private fun CurrencyRow(
 }
 
 @Composable
-private fun StatusLine(state: ConverterUiState) {
-	val text = when {
-		state.isLoading -> stringResource(R.string.converter_loading)
-		state.error -> stringResource(R.string.converter_error)
-		!state.online -> stringResource(R.string.converter_offline)
-		state.updatedAtEpochMs != null ->
-			stringResource(R.string.converter_updated, formatTimestamp(state.updatedAtEpochMs))
-		else -> stringResource(R.string.converter_updated_never)
-	}
+private fun StatusLine(text: String) {
 	AppText(
 		text = text,
 		modifier = Modifier.fillMaxWidth(),
 		textAlign = TextAlign.Center,
 		color = AppColors.onBackgroundVariant,
 	)
+}
+
+@Composable
+private fun ConverterUiState.statusText(): String = when {
+	isLoading -> stringResource(R.string.converter_loading)
+	error -> stringResource(R.string.converter_error)
+	!online -> stringResource(R.string.converter_offline)
+	updatedAtEpochMs != null ->
+		stringResource(R.string.converter_updated, formatTimestamp(updatedAtEpochMs))
+	else -> stringResource(R.string.converter_updated_never)
 }

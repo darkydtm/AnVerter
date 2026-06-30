@@ -1,5 +1,16 @@
 package com.anverter.app.feature.calculator
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.using
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,6 +58,11 @@ private data class CalculatorKey(
 	val onClick: () -> Unit,
 )
 
+private val calculatorSpring = spring<Float>(
+	dampingRatio = Spring.DampingRatioMediumBouncy,
+	stiffness = Spring.StiffnessMediumLow,
+)
+
 @Composable
 fun CalculatorScreen(
 	viewModel: CalculatorViewModel,
@@ -77,27 +93,54 @@ fun CalculatorScreen(
 			verticalArrangement = Arrangement.Bottom,
 			horizontalAlignment = Alignment.End,
 		) {
-			AppText(
+			AnimatedCalculatorText(
 				text = state.expression.ifEmpty { "0" },
 				fontSize = 44.sp,
 				fontWeight = FontWeight.Light,
-				maxLines = 1,
-				overflow = TextOverflow.Ellipsis,
 				color = AppColors.onBackground,
 			)
-			AppText(
+			AnimatedCalculatorText(
 				text = if (state.error) stringResource(R.string.calculator_error) else state.preview,
 				fontSize = 24.sp,
-				maxLines = 1,
-				overflow = TextOverflow.Ellipsis,
 				color = if (state.error) AppColors.error else AppColors.onBackgroundVariant,
 			)
-            if (state.history.isNotEmpty()) {
-                AppHistory(state.history)
-            }
+			AnimatedVisibility(
+				visible = state.history.isNotEmpty(),
+				enter = fadeIn(calculatorSpring) + scaleIn(calculatorSpring, initialScale = 0.96f),
+				exit = fadeOut(calculatorSpring) + scaleOut(calculatorSpring, targetScale = 0.96f),
+			) {
+				AppHistory(state.history)
+			}
         }
 
 		Keypad(state.extendedMode, viewModel, bottomPadding)
+	}
+}
+
+@Composable
+private fun AnimatedCalculatorText(
+	text: String,
+	fontSize: androidx.compose.ui.unit.TextUnit,
+	color: Color,
+	fontWeight: FontWeight? = null,
+) {
+	AnimatedContent(
+		targetState = text,
+		transitionSpec = {
+			(fadeIn(calculatorSpring) + scaleIn(calculatorSpring, initialScale = 0.94f))
+				.togetherWith(fadeOut(calculatorSpring) + scaleOut(calculatorSpring, targetScale = 1.04f))
+				.using(SizeTransform(clip = false))
+		},
+		label = "calculator-text",
+	) { value ->
+		AppText(
+			text = value,
+			fontSize = fontSize,
+			fontWeight = fontWeight,
+			maxLines = 1,
+			overflow = TextOverflow.Ellipsis,
+			color = color,
+		)
 	}
 }
 
@@ -114,15 +157,25 @@ private fun AppHistory(history: List<CalculatorHistoryItem>) {
                 fontWeight = FontWeight.Medium,
                 color = AppColors.onSurfaceVariant,
             )
-            history.take(4).forEach { item ->
-                AppText(
-                    text = "${item.expression} = ${item.result}",
-                    fontSize = 13.sp,
-                    color = AppColors.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
+			history.take(4).forEach { item ->
+				AnimatedContent(
+					targetState = item,
+					transitionSpec = {
+						(fadeIn(calculatorSpring) + scaleIn(calculatorSpring, initialScale = 0.97f))
+							.togetherWith(fadeOut(calculatorSpring))
+							.using(SizeTransform(clip = false))
+					},
+					label = "calculator-history-item",
+				) { historyItem ->
+					AppText(
+						text = "${historyItem.expression} = ${historyItem.result}",
+						fontSize = 13.sp,
+						color = AppColors.onSurfaceVariant,
+						maxLines = 1,
+						overflow = TextOverflow.Ellipsis,
+					)
+				}
+			}
         }
     }
 }
@@ -176,18 +229,24 @@ private fun Keypad(
 			)
 			Key(CalculatorKey("=", KeyKind.EQUALS) { viewModel.equals() })
 		}
-		if (extendedMode) {
-			Row(Modifier.fillMaxWidth()) {
-				Key(CalculatorKey("√", KeyKind.FUNCTION) { viewModel.input("√") })
-				Key(CalculatorKey("x²", KeyKind.FUNCTION) { viewModel.input("^2") })
-				Key(CalculatorKey("1/x", KeyKind.FUNCTION) { viewModel.input("^-1") })
-				Key(CalculatorKey("n!", KeyKind.FUNCTION) { viewModel.input("!") })
-			}
-			Row(Modifier.fillMaxWidth()) {
-				Key(CalculatorKey("%", KeyKind.FUNCTION) { viewModel.input("%") })
-				Key(CalculatorKey("(", KeyKind.FUNCTION) { viewModel.input("(") })
-				Key(CalculatorKey(")", KeyKind.FUNCTION) { viewModel.input(")") })
-				Key(CalculatorKey("C", KeyKind.FUNCTION) { viewModel.clear() })
+		AnimatedVisibility(
+			visible = extendedMode,
+			enter = fadeIn(calculatorSpring) + scaleIn(calculatorSpring, initialScale = 0.94f),
+			exit = fadeOut(calculatorSpring) + scaleOut(calculatorSpring, targetScale = 0.94f),
+		) {
+			Column {
+				Row(Modifier.fillMaxWidth()) {
+					Key(CalculatorKey("√", KeyKind.FUNCTION) { viewModel.input("√") })
+					Key(CalculatorKey("x²", KeyKind.FUNCTION) { viewModel.input("^2") })
+					Key(CalculatorKey("1/x", KeyKind.FUNCTION) { viewModel.input("^-1") })
+					Key(CalculatorKey("n!", KeyKind.FUNCTION) { viewModel.input("!") })
+				}
+				Row(Modifier.fillMaxWidth()) {
+					Key(CalculatorKey("%", KeyKind.FUNCTION) { viewModel.input("%") })
+					Key(CalculatorKey("(", KeyKind.FUNCTION) { viewModel.input("(") })
+					Key(CalculatorKey(")", KeyKind.FUNCTION) { viewModel.input(")") })
+					Key(CalculatorKey("C", KeyKind.FUNCTION) { viewModel.clear() })
+				}
 			}
 		}
 	}

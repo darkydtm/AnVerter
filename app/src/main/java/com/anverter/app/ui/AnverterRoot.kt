@@ -1,5 +1,9 @@
 package com.anverter.app.ui
 
+import androidx.activity.compose.ExperimentalActivityComposeApi
+import androidx.activity.compose.PredictiveBackHandler
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,9 +40,15 @@ import com.anverter.app.ui.adaptive.AppNavigationBarItem
 import com.anverter.app.ui.adaptive.AppScaffold
 import com.anverter.app.ui.adaptive.ProvideAppStyle
 import com.anverter.app.ui.theme.AnverterTheme
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 private data class Tab(val labelRes: Int, val icon: ImageVector)
+
+private val tabSpring = spring<Float>(
+    dampingRatio = Spring.DampingRatioLowBouncy,
+    stiffness = Spring.StiffnessMediumLow,
+)
 
 internal fun tabIndexForOffset(x: Float, width: Int, tabCount: Int): Int {
     if (width <= 0 || tabCount <= 0) return 0
@@ -95,6 +105,7 @@ fun AnverterRoot(container: AppContainer) {
 }
 
 @Composable
+@OptIn(ExperimentalActivityComposeApi::class)
 private fun AnverterApp(
     converterViewModel: ConverterViewModel,
     calculatorViewModel: CalculatorViewModel,
@@ -109,13 +120,44 @@ private fun AnverterApp(
     val pagerState = rememberPagerState(pageCount = { tabs.size })
     val scope = rememberCoroutineScope()
     val selected = pagerState.targetPage
+
     val goTo: (Int) -> Unit = { index ->
-        scope.launch { pagerState.animateScrollToPage(index.coerceIn(0, tabs.lastIndex)) }
+        val page = index.coerceIn(0, tabs.lastIndex)
+        scope.launch {
+            pagerState.animateScrollToPage(
+                page = page,
+                animationSpec = tabSpring,
+            )
+        }
     }
     val dragTo: (Int) -> Unit = { index ->
         val page = index.coerceIn(0, tabs.lastIndex)
         if (pagerState.targetPage != page) {
             scope.launch { pagerState.scrollToPage(page) }
+        }
+    }
+    PredictiveBackHandler(enabled = pagerState.currentPage > 0) { progress ->
+        val sourcePage = pagerState.currentPage
+        val targetPage = (sourcePage - 1).coerceAtLeast(0)
+        try {
+            progress.collect { event ->
+                val gestureProgress = event.progress.coerceIn(0f, 1f)
+                if (gestureProgress < 0.5f) {
+                    pagerState.scrollToPage(
+                        page = sourcePage,
+                        pageOffsetFraction = -gestureProgress,
+                    )
+                } else {
+                    pagerState.scrollToPage(
+                        page = targetPage,
+                        pageOffsetFraction = 1f - gestureProgress,
+                    )
+                }
+            }
+            goTo(targetPage)
+        } catch (e: CancellationException) {
+            goTo(sourcePage)
+            throw e
         }
     }
 
