@@ -10,10 +10,10 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,10 +22,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -42,11 +43,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -73,6 +78,15 @@ private val converterSpring = spring<Float>(
 	stiffness = Spring.StiffnessMediumLow,
 )
 
+private fun TextFieldValue.syncText(externalText: String): TextFieldValue {
+	if (text == externalText) return this
+	val selectionEnd = selection.end.coerceIn(0, externalText.length)
+	return copy(
+		text = externalText,
+		selection = TextRange(selectionEnd),
+	)
+}
+
 @Composable
 fun ConverterScreen(
 	viewModel: ConverterViewModel,
@@ -88,8 +102,9 @@ fun ConverterScreen(
 	}
 
 	BoxWithConstraints(modifier = modifier.fillMaxSize()) {
-		val compact = maxHeight < 620.dp
-		Column(modifier = Modifier.fillMaxSize().imePadding()) {
+		val imeVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
+		val compact = maxHeight < 620.dp || imeVisible
+		Column(modifier = Modifier.fillMaxSize()) {
 			AppTopBar(
 				title = stringResource(R.string.converter_title),
 				actions = {
@@ -106,8 +121,10 @@ fun ConverterScreen(
 			Column(
 				modifier = Modifier
 					.fillMaxWidth()
-					.verticalScroll(rememberScrollState())
-					.padding(horizontal = 16.dp),
+					.verticalScroll(androidx.compose.foundation.rememberScrollState())
+					.padding(horizontal = 16.dp)
+					.padding(bottom = bottomPadding)
+					.imePadding(),
 			) {
 				ConversionFields(
 					state = state,
@@ -137,7 +154,7 @@ fun ConverterScreen(
 				) {
 					RecentConversions(state, viewModel)
 				}
-				Spacer(Modifier.height(bottomPadding + 16.dp))
+				Spacer(Modifier.height(16.dp))
 			}
 		}
 	}
@@ -252,11 +269,19 @@ private fun ConversionField(
 	onCurrencyClick: () -> Unit,
 	modifier: Modifier = Modifier,
 ) {
+	var fieldValue by remember {
+		mutableStateOf(TextFieldValue(value, selection = TextRange(value.length)))
+	}
+	fieldValue = fieldValue.syncText(value)
+
 	Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
 		AppSmallTitle(text = title)
 		AppTextField(
-			value = TextFieldValue(value),
-			onValueChange = { onValueChange(it.text) },
+			value = fieldValue,
+			onValueChange = { next ->
+				fieldValue = next
+				onValueChange(next.text)
+			},
 			label = title,
 			singleLine = true,
 			keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -286,34 +311,45 @@ private fun currencyLabel(currencies: List<CurrencyOption>, currencyCode: String
 @Composable
 private fun RecentConversions(state: ConverterUiState, viewModel: ConverterViewModel) {
 	AppSmallTitle(text = stringResource(R.string.converter_recent))
-	Row(
-		modifier = Modifier
-			.fillMaxWidth()
-			.horizontalScroll(rememberScrollState()),
+	LazyRow(
+		modifier = Modifier.fillMaxWidth(),
 		horizontalArrangement = Arrangement.spacedBy(8.dp),
+		contentPadding = PaddingValues(horizontal = 2.dp, vertical = 4.dp),
 	) {
-		state.recents.forEach { pair ->
-			AnimatedContent(
-				targetState = pair,
-				transitionSpec = {
-					(fadeIn(converterSpring) + scaleIn(converterSpring, initialScale = 0.95f))
-						.togetherWith(fadeOut(converterSpring))
-				},
-				label = "converter-recent",
-			) { recent ->
-				AppSurface(
-					onClick = { viewModel.applyRecent(recent) },
-					shape = RoundedCornerShape(16.dp),
-					color = AppColors.secondaryContainer,
-					contentColor = AppColors.onSecondaryContainer,
-				) {
-					AppText(
-						text = recent.label,
-						modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
-						color = AppColors.onSecondaryContainer,
-					)
-				}
-			}
+		items(
+			items = state.recents,
+			key = { "${it.from}:${it.to}:${it.fromValue}:${it.toValue}" },
+		) { recent ->
+			RecentConversionChip(recent, viewModel)
+		}
+	}
+}
+
+@Composable
+private fun RecentConversionChip(recent: RecentConversion, viewModel: ConverterViewModel) {
+	AnimatedContent(
+		targetState = recent,
+		transitionSpec = {
+			(fadeIn(converterSpring) + scaleIn(converterSpring, initialScale = 0.95f))
+				.togetherWith(fadeOut(converterSpring))
+		},
+		label = "converter-recent",
+	) { pair ->
+		AppSurface(
+			onClick = { viewModel.applyRecent(pair) },
+			shape = RoundedCornerShape(16.dp),
+			color = AppColors.secondaryContainer,
+			contentColor = AppColors.onSecondaryContainer,
+		) {
+			AppText(
+				text = pair.label,
+				modifier = Modifier
+					.widthIn(max = 220.dp)
+					.padding(horizontal = 14.dp, vertical = 8.dp),
+				color = AppColors.onSecondaryContainer,
+				maxLines = 1,
+				overflow = TextOverflow.Ellipsis,
+			)
 		}
 	}
 }
