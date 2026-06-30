@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Calculate
@@ -19,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.anverter.app.R
@@ -40,23 +38,35 @@ import top.yukonga.miuix.kmp.basic.Scaffold
 
 private data class Tab(val labelRes: Int, val icon: ImageVector)
 
-/** Horizontal drag over the floating bar switches to the adjacent tab. */
+internal fun tabIndexForOffset(x: Float, width: Int, tabCount: Int): Int {
+    if (width <= 0 || tabCount <= 0) return 0
+    val clampedX = x.coerceIn(0f, width.toFloat())
+    return ((clampedX / width.toFloat()) * tabCount)
+        .toInt()
+        .coerceIn(0, tabCount - 1)
+}
+
+/** Dragging across the floating bar selects the tab under the finger. */
 private fun swipeTabsModifier(
-    pagerState: PagerState,
-    goTo: (Int) -> Unit,
-): Modifier = Modifier.pointerInput(pagerState) {
-    var total = 0f
+    tabCount: Int,
+    selectTab: (Int) -> Unit,
+): Modifier = Modifier.pointerInput(tabCount, selectTab) {
+    var lastSelected = -1
+
+    fun selectAt(x: Float) {
+        val index = tabIndexForOffset(x, size.width, tabCount)
+        if (index != lastSelected) {
+            lastSelected = index
+            selectTab(index)
+        }
+    }
+
     detectHorizontalDragGestures(
-        onDragStart = { total = 0f },
-        onDragEnd = {
-            val threshold = 48.dp.toPx()
-            when {
-                total <= -threshold -> goTo(pagerState.currentPage + 1)
-                total >= threshold -> goTo(pagerState.currentPage - 1)
-            }
-        },
-    ) { change, dragAmount ->
-        total += dragAmount
+        onDragStart = { offset -> selectAt(offset.x) },
+        onDragEnd = { lastSelected = -1 },
+        onDragCancel = { lastSelected = -1 },
+    ) { change, _ ->
+        selectAt(change.position.x)
         change.consume()
     }
 }
@@ -96,12 +106,18 @@ private fun AnverterApp(
     val goTo: (Int) -> Unit = { index ->
         scope.launch { pagerState.animateScrollToPage(index.coerceIn(0, tabs.lastIndex)) }
     }
+    val dragTo: (Int) -> Unit = { index ->
+        val page = index.coerceIn(0, tabs.lastIndex)
+        if (pagerState.targetPage != page) {
+            scope.launch { pagerState.scrollToPage(page) }
+        }
+    }
 
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
             when (navBarStyle) {
-                NavBarStyle.SLIDER -> Box(modifier = swipeTabsModifier(pagerState, goTo)) {
+                NavBarStyle.SLIDER -> Box(modifier = swipeTabsModifier(tabs.size, dragTo)) {
                     FloatingNavigationBar {
                         tabs.forEachIndexed { index, tab ->
                             FloatingNavigationBarItem(
