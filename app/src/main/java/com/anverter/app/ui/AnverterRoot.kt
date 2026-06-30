@@ -1,18 +1,17 @@
 package com.anverter.app.ui
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.CurrencyExchange
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -27,6 +26,7 @@ import com.anverter.app.feature.converter.ConverterViewModel
 import com.anverter.app.feature.settings.SettingsScreen
 import com.anverter.app.feature.settings.SettingsViewModel
 import com.anverter.app.ui.theme.AnverterTheme
+import kotlinx.coroutines.launch
 import top.yukonga.miuix.kmp.basic.FloatingNavigationBar
 import top.yukonga.miuix.kmp.basic.FloatingNavigationBarItem
 import top.yukonga.miuix.kmp.basic.NavigationBar
@@ -64,7 +64,10 @@ private fun AnverterApp(
         Tab(R.string.tab_calculator, Icons.Filled.Calculate),
         Tab(R.string.tab_settings, Icons.Filled.Settings),
     )
-    var selected by rememberSaveable { mutableIntStateOf(0) }
+    val pagerState = rememberPagerState(pageCount = { tabs.size })
+    val scope = rememberCoroutineScope()
+    val selected = pagerState.targetPage
+    val goTo: (Int) -> Unit = { index -> scope.launch { pagerState.animateScrollToPage(index) } }
 
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -74,7 +77,7 @@ private fun AnverterApp(
                     tabs.forEachIndexed { index, tab ->
                         FloatingNavigationBarItem(
                             selected = selected == index,
-                            onClick = { selected = index },
+                            onClick = { goTo(index) },
                             icon = tab.icon,
                             label = stringResource(tab.labelRes),
                         )
@@ -85,7 +88,7 @@ private fun AnverterApp(
                     tabs.forEachIndexed { index, tab ->
                         NavigationBarItem(
                             selected = selected == index,
-                            onClick = { selected = index },
+                            onClick = { goTo(index) },
                             icon = tab.icon,
                             label = stringResource(tab.labelRes),
                         )
@@ -95,8 +98,12 @@ private fun AnverterApp(
         },
     ) { padding ->
         val bottomPadding = padding.calculateBottomPadding()
-        Box(modifier = Modifier.fillMaxSize()) {
-            when (selected) {
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxSize(),
+            beyondViewportPageCount = 1,
+        ) { page ->
+            when (page) {
                 0 -> ConverterScreen(converterViewModel, bottomPadding = bottomPadding)
                 1 -> CalculatorScreen(calculatorViewModel, bottomPadding = bottomPadding)
                 else -> SettingsScreen(settingsViewModel, bottomPadding = bottomPadding)
