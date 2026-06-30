@@ -2,7 +2,6 @@ package com.anverter.app.feature.converter
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
@@ -10,7 +9,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.animation.using
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -127,7 +125,6 @@ fun ConverterScreen(
 					transitionSpec = {
 						(fadeIn(converterSpring) + scaleIn(converterSpring, initialScale = 0.97f))
 							.togetherWith(fadeOut(converterSpring) + scaleOut(converterSpring, targetScale = 1.03f))
-							.using(SizeTransform(clip = false))
 					},
 					label = "converter-status",
 				) { status ->
@@ -270,7 +267,6 @@ private fun ConversionField(
 			transitionSpec = {
 				(fadeIn(converterSpring) + scaleIn(converterSpring, initialScale = 0.97f))
 					.togetherWith(fadeOut(converterSpring) + scaleOut(converterSpring, targetScale = 1.03f))
-					.using(SizeTransform(clip = false))
 			},
 			label = "converter-currency-field",
 		) { label ->
@@ -302,7 +298,6 @@ private fun RecentConversions(state: ConverterUiState, viewModel: ConverterViewM
 				transitionSpec = {
 					(fadeIn(converterSpring) + scaleIn(converterSpring, initialScale = 0.95f))
 						.togetherWith(fadeOut(converterSpring))
-						.using(SizeTransform(clip = false))
 				},
 				label = "converter-recent",
 			) { recent ->

@@ -1,6 +1,5 @@
 package com.anverter.app.ui
 
-import androidx.activity.compose.ExperimentalActivityComposeApi
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -105,7 +104,6 @@ fun AnverterRoot(container: AppContainer) {
 }
 
 @Composable
-@OptIn(ExperimentalActivityComposeApi::class)
 private fun AnverterApp(
     converterViewModel: ConverterViewModel,
     calculatorViewModel: CalculatorViewModel,

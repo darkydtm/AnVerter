@@ -3,18 +3,16 @@ package com.anverter.app.ui.adaptive
 import android.media.AudioManager
 import android.view.SoundEffectConstants
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.animation.using
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -492,9 +490,9 @@ fun AppPreferenceRow(
     onClick: (() -> Unit)? = null,
 ) {
     val motion = rememberAppActionMotionState()
-    val miuixClick = onClick?.let { originalClick ->
+    val miuixClick: (() -> Unit)? = onClick?.let { originalClick ->
         val click = appClick(originalClick)
-        {
+        return@let {
             motion.bounce()
             click()
         }
@@ -550,7 +548,6 @@ fun AppPreferenceRow(
 							transitionSpec = {
 								(fadeIn(appContentSpring) + scaleIn(appContentSpring, initialScale = 0.97f))
 									.togetherWith(fadeOut(appContentSpring) + scaleOut(appContentSpring, targetScale = 1.03f))
-									.using(SizeTransform(clip = false))
 							},
 							label = "preference-summary",
 						) { value ->

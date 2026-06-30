@@ -2,7 +2,6 @@ package com.anverter.app.feature.calculator
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
@@ -10,7 +9,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.animation.using
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -129,7 +127,6 @@ private fun AnimatedCalculatorText(
 		transitionSpec = {
 			(fadeIn(calculatorSpring) + scaleIn(calculatorSpring, initialScale = 0.94f))
 				.togetherWith(fadeOut(calculatorSpring) + scaleOut(calculatorSpring, targetScale = 1.04f))
-				.using(SizeTransform(clip = false))
 		},
 		label = "calculator-text",
 	) { value ->
@@ -163,7 +160,6 @@ private fun AppHistory(history: List<CalculatorHistoryItem>) {
 					transitionSpec = {
 						(fadeIn(calculatorSpring) + scaleIn(calculatorSpring, initialScale = 0.97f))
 							.togetherWith(fadeOut(calculatorSpring))
-							.using(SizeTransform(clip = false))
 					},
 					label = "calculator-history-item",
 				) { historyItem ->
