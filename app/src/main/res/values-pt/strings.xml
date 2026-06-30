@@ -15,6 +15,12 @@
     <string name="converter_offline">Sem rede - mostrando últimas taxas</string>
     <string name="converter_loading">Carregando taxas…</string>
     <string name="converter_error">Falha ao atualizar as taxas</string>
+    <string name="converter_search">Buscar moedas</string>
+    <string name="converter_no_results">Nenhuma moeda encontrada</string>
+    <string name="converter_favorites">Favoritos</string>
+    <string name="converter_all">Todas as moedas</string>
+    <string name="converter_recent">Conversões recentes</string>
+    <string name="converter_favorite">Alternar favorito</string>
 
     <string name="calculator_title">Calculadora</string>
     <string name="calculator_error">Erro</string>

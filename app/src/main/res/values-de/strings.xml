@@ -15,6 +15,12 @@
     <string name="converter_offline">Kein Netz - letzte Kurse werden angezeigt</string>
     <string name="converter_loading">Kurse werden geladen…</string>
     <string name="converter_error">Kurse konnten nicht aktualisiert werden</string>
+    <string name="converter_search">Währungen suchen</string>
+    <string name="converter_no_results">Keine Währungen gefunden</string>
+    <string name="converter_favorites">Favoriten</string>
+    <string name="converter_all">Alle Währungen</string>
+    <string name="converter_recent">Letzte Umrechnungen</string>
+    <string name="converter_favorite">Favorit umschalten</string>
 
     <string name="calculator_title">Rechner</string>
     <string name="calculator_error">Fehler</string>

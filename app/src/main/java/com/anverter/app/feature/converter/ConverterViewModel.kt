@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.anverter.app.core.ConnectivityObserver
 import com.anverter.app.data.RatesRepository
+import com.anverter.app.data.local.RecentConversion
+import com.anverter.app.data.local.SettingsStore
 import com.anverter.app.domain.Converter
 import com.anverter.app.domain.model.CurrencyRate
 import com.anverter.app.domain.model.CurrencyType
@@ -20,10 +22,18 @@ data class CurrencyOption(
     val type: CurrencyType,
 )
 
+data class RecentPair(
+    val from: String,
+    val to: String,
+    val label: String,
+)
+
 data class ConverterUiState(
     val isLoading: Boolean = false,
     val online: Boolean = true,
     val currencies: List<CurrencyOption> = emptyList(),
+    val favorites: Set<String> = emptySet(),
+    val recents: List<RecentPair> = emptyList(),
     val fromCode: String = "usd",
     val toCode: String = "btc",
     val amountInput: String = "1",
@@ -35,15 +45,28 @@ data class ConverterUiState(
 class ConverterViewModel(
     private val repository: RatesRepository,
     private val connectivity: ConnectivityObserver,
+    private val settings: SettingsStore,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ConverterUiState())
     val state: StateFlow<ConverterUiState> = _state.asStateFlow()
 
     private var snapshot: RatesSnapshot? = null
+    private var recentRaw: List<RecentConversion> = emptyList()
     private var resumed = false
 
     init {
+        viewModelScope.launch {
+            settings.favoriteCurrencies.collect { favorites ->
+                _state.update { it.copy(favorites = favorites) }
+            }
+        }
+        viewModelScope.launch {
+            settings.recentConversions.collect { recents ->
+                recentRaw = recents
+                _state.update { it.copy(recents = recents.toPairs()) }
+            }
+        }
         viewModelScope.launch {
             repository.cachedRates.collect { snap ->
                 snapshot = snap
@@ -52,6 +75,7 @@ class ConverterViewModel(
                     current.copy(
                         currencies = currencies,
                         updatedAtEpochMs = snap?.updatedAtEpochMs ?: current.updatedAtEpochMs,
+                        recents = recentRaw.toPairs(),
                     )
                 }
                 recompute()
@@ -112,16 +136,39 @@ class ConverterViewModel(
     fun setFrom(code: String) {
         _state.update { it.copy(fromCode = code) }
         recompute()
+        recordRecent()
     }
 
     fun setTo(code: String) {
         _state.update { it.copy(toCode = code) }
         recompute()
+        recordRecent()
     }
 
     fun swap() {
         _state.update { it.copy(fromCode = it.toCode, toCode = it.fromCode) }
         recompute()
+        recordRecent()
+    }
+
+    fun toggleFavorite(code: String) {
+        viewModelScope.launch { settings.toggleFavorite(code) }
+    }
+
+    fun applyRecent(pair: RecentPair) {
+        _state.update { it.copy(fromCode = pair.from, toCode = pair.to) }
+        recompute()
+        recordRecent()
+    }
+
+    private fun recordRecent() {
+        val state = _state.value
+        if (state.fromCode == state.toCode) return
+        val rates = snapshot?.rates ?: return
+        if (rates[state.fromCode] == null || rates[state.toCode] == null) return
+        viewModelScope.launch {
+            settings.addRecentConversion(RecentConversion(state.fromCode, state.toCode))
+        }
     }
 
     private fun recompute() {
@@ -144,6 +191,14 @@ class ConverterViewModel(
 
     private fun CurrencyRate.toOption(): CurrencyOption =
         CurrencyOption(code = code, label = "${code.uppercase()} · $name", type = type)
+
+    private fun List<RecentConversion>.toPairs(): List<RecentPair> = map { recent ->
+        RecentPair(
+            from = recent.from,
+            to = recent.to,
+            label = "${recent.from.uppercase()} → ${recent.to.uppercase()}",
+        )
+    }
 
     private fun String.filterAmountInput(): String {
         val cleaned = replace(',', '.').filter { it.isDigit() || it == '.' }

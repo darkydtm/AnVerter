@@ -15,6 +15,12 @@
     <string name="converter_offline">无网络 - 显示最近汇率</string>
     <string name="converter_loading">正在加载汇率…</string>
     <string name="converter_error">刷新汇率失败</string>
+    <string name="converter_search">搜索货币</string>
+    <string name="converter_no_results">未找到货币</string>
+    <string name="converter_favorites">收藏</string>
+    <string name="converter_all">所有货币</string>
+    <string name="converter_recent">最近转换</string>
+    <string name="converter_favorite">切换收藏</string>
 
     <string name="calculator_title">计算器</string>
     <string name="calculator_error">错误</string>

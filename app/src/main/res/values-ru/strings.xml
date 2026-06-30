@@ -15,6 +15,12 @@
     <string name="converter_offline">Нет сети - показаны последние курсы</string>
     <string name="converter_loading">Загрузка курсов…</string>
     <string name="converter_error">Не удалось обновить курсы</string>
+    <string name="converter_search">Поиск валют</string>
+    <string name="converter_no_results">Валюты не найдены</string>
+    <string name="converter_favorites">Избранное</string>
+    <string name="converter_all">Все валюты</string>
+    <string name="converter_recent">Недавние конверсии</string>
+    <string name="converter_favorite">Переключить избранное</string>
 
     <string name="calculator_title">Калькулятор</string>
     <string name="calculator_error">Ошибка</string>
