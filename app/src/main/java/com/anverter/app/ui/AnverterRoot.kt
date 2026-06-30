@@ -29,8 +29,8 @@ import com.anverter.app.feature.converter.ConverterScreen
 import com.anverter.app.feature.converter.ConverterViewModel
 import com.anverter.app.feature.settings.SettingsScreen
 import com.anverter.app.feature.settings.SettingsViewModel
+import com.anverter.app.ui.adaptive.AppNavigationItem
 import com.anverter.app.ui.adaptive.AppFloatingNavigationBar
-import com.anverter.app.ui.adaptive.AppFloatingNavigationBarItem
 import com.anverter.app.ui.adaptive.AppNavigationBar
 import com.anverter.app.ui.adaptive.AppNavigationBarItem
 import com.anverter.app.ui.adaptive.AppScaffold
@@ -128,16 +128,16 @@ private fun AnverterApp(
                         .then(swipeTabsModifier(tabs.size, dragTo)),
                     contentAlignment = Alignment.Center,
                 ) {
-                    AppFloatingNavigationBar {
-                        tabs.forEachIndexed { index, tab ->
-                            AppFloatingNavigationBarItem(
-                                selected = selected == index,
-                                onClick = { goTo(index) },
+                    AppFloatingNavigationBar(
+                        items = tabs.map { tab ->
+                            AppNavigationItem(
                                 icon = tab.icon,
                                 label = stringResource(tab.labelRes),
                             )
-                        }
-                    }
+                        },
+                        selectedIndex = selected,
+                        onItemClick = goTo,
+                    )
                 }
 
                 NavBarStyle.TABS -> AppNavigationBar {

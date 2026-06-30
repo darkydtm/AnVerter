@@ -81,6 +81,11 @@ private data class SoundController(
     val play: () -> Unit,
 )
 
+data class AppNavigationItem(
+    val icon: ImageVector,
+    val label: String,
+)
+
 @Composable
 fun ProvideAppStyle(
     uiStyle: UiStyle,
@@ -528,10 +533,33 @@ fun AppNavigationBar(content: @Composable RowScope.() -> Unit) {
 }
 
 @Composable
-fun AppFloatingNavigationBar(content: @Composable RowScope.() -> Unit) {
+fun AppFloatingNavigationBar(
+    items: List<AppNavigationItem>,
+    selectedIndex: Int,
+    onItemClick: (Int) -> Unit,
+) {
     when (LocalUiStyle.current) {
-        UiStyle.MIUIX -> MiuixFloatingNavigationBar(content = content)
-        UiStyle.MATERIAL3 -> MaterialNavigationBar(content = content)
+        UiStyle.MIUIX -> MiuixFloatingNavigationBar {
+            items.forEachIndexed { index, item ->
+                MiuixFloatingNavigationBarItem(
+                    selected = selectedIndex == index,
+                    onClick = appClick { onItemClick(index) },
+                    icon = item.icon,
+                    label = item.label,
+                )
+            }
+        }
+
+        UiStyle.MATERIAL3 -> MaterialNavigationBar {
+            items.forEachIndexed { index, item ->
+                MaterialNavigationBarItem(
+                    selected = selectedIndex == index,
+                    onClick = appClick { onItemClick(index) },
+                    icon = { MaterialIcon(item.icon, contentDescription = item.label) },
+                    label = { MaterialText(item.label) },
+                )
+            }
+        }
     }
 }
 
