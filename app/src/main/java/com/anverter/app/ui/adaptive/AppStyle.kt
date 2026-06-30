@@ -4,15 +4,17 @@ import android.media.AudioManager
 import android.view.SoundEffectConstants
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.interaction.InteractionSource
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -57,9 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.anverter.app.ui.SoundFeedback
 import com.anverter.app.ui.UiStyle
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import top.yukonga.miuix.kmp.theme.MiuixTheme
+import com.anverter.app.ui.theme.LocalAppDarkTheme
 import androidx.compose.material3.Card as MaterialCard
 import androidx.compose.material3.CardDefaults as MaterialCardDefaults
 import androidx.compose.material3.DropdownMenu as MaterialDropdownMenu
@@ -93,77 +93,30 @@ private val LocalUiStyle = compositionLocalOf { UiStyle.MIUIX }
 private val LocalSoundController = compositionLocalOf { SoundController(play = {}) }
 
 private data class SoundController(
-    val play: () -> Unit,
+	val play: () -> Unit,
 )
 
 private val appContentSpring = spring<Float>(
-	dampingRatio = Spring.DampingRatioMediumBouncy,
-	stiffness = Spring.StiffnessMediumLow,
+	dampingRatio = Spring.DampingRatioNoBouncy,
+	stiffness = Spring.StiffnessLow,
 )
 
-private class AppActionMotionState(
-	private val scope: CoroutineScope,
-	private val scale: Animatable<Float, AnimationVector1D>,
-	private val rotation: Animatable<Float, AnimationVector1D>,
-) {
-	val scaleValue: Float get() = scale.value
-	val rotationValue: Float get() = rotation.value
-
-	fun bounce() {
-		scope.launch {
-			scale.stop()
-			scale.snapTo(0.965f)
-			scale.animateTo(
-				targetValue = 1.035f,
-				animationSpec = spring(
-					dampingRatio = Spring.DampingRatioLowBouncy,
-					stiffness = Spring.StiffnessMedium,
-				),
-			)
-			scale.animateTo(
-				targetValue = 1f,
-				animationSpec = spring(
-					dampingRatio = Spring.DampingRatioMediumBouncy,
-					stiffness = Spring.StiffnessMediumLow,
-				),
-			)
-		}
-		scope.launch {
-			rotation.stop()
-			rotation.snapTo(-0.7f)
-			rotation.animateTo(
-				targetValue = 0.45f,
-				animationSpec = spring(
-					dampingRatio = Spring.DampingRatioLowBouncy,
-					stiffness = Spring.StiffnessMedium,
-				),
-			)
-			rotation.animateTo(
-				targetValue = 0f,
-				animationSpec = spring(
-					dampingRatio = Spring.DampingRatioMediumBouncy,
-					stiffness = Spring.StiffnessMediumLow,
-				),
-			)
-		}
-	}
-}
-
 @Composable
-private fun rememberAppActionMotionState(): AppActionMotionState {
-	val scope = rememberCoroutineScope()
-	val scale = remember { Animatable(1f) }
-	val rotation = remember { Animatable(0f) }
-	return remember(scope, scale, rotation) {
-		AppActionMotionState(scope, scale, rotation)
-	}
-}
-
-private fun Modifier.appActionMotion(state: AppActionMotionState): Modifier =
-	graphicsLayer {
-		scaleX = state.scaleValue
-		scaleY = state.scaleValue
-		rotationZ = state.rotationValue
+private fun Modifier.appPressedMotion(
+	interactionSource: InteractionSource,
+): Modifier {
+	val pressed by interactionSource.collectIsPressedAsState()
+	val scale by animateFloatAsState(
+		targetValue = if (pressed) 1.045f else 1f,
+		animationSpec = spring(
+			dampingRatio = Spring.DampingRatioMediumBouncy,
+			stiffness = Spring.StiffnessLow,
+		),
+		label = "app-pressed-scale",
+	)
+	return graphicsLayer {
+		scaleX = scale
+		scaleY = scale
 	}
 
 data class AppNavigationItem(
@@ -265,87 +218,82 @@ fun AppSmallTitle(
 
 @Composable
 fun AppCard(
-    modifier: Modifier = Modifier,
-    content: @Composable ColumnScope.() -> Unit,
+	modifier: Modifier = Modifier,
+	content: @Composable ColumnScope.() -> Unit,
 ) {
-    val animatedModifier = modifier.animateContentSize(
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessMediumLow,
-        ),
-    )
-    when (LocalUiStyle.current) {
-        UiStyle.MIUIX -> MiuixCard(modifier = animatedModifier, content = content)
-        UiStyle.MATERIAL3 -> MaterialCard(
-            modifier = animatedModifier,
-            shape = RoundedCornerShape(8.dp),
-            colors = MaterialCardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-            content = content,
-        )
-    }
+	val animatedModifier = modifier.animateContentSize(
+		animationSpec = spring(
+			dampingRatio = Spring.DampingRatioNoBouncy,
+			stiffness = Spring.StiffnessLow,
+		),
+	)
+	when (LocalUiStyle.current) {
+		UiStyle.MIUIX -> MiuixCard(modifier = animatedModifier, content = content)
+		UiStyle.MATERIAL3 -> MaterialCard(
+			modifier = animatedModifier,
+			shape = RoundedCornerShape(8.dp),
+			colors = MaterialCardDefaults.cardColors(containerColor = AppColors.surface),
+			content = content,
+		)
+	}
 }
 
 @Composable
 fun AppSurface(
-    onClick: (() -> Unit)? = null,
-    modifier: Modifier = Modifier,
-    shape: Shape = RoundedCornerShape(8.dp),
-    color: Color = AppColors.surface,
-    contentColor: Color = AppColors.onSurface,
-    content: @Composable () -> Unit,
+	onClick: (() -> Unit)? = null,
+	modifier: Modifier = Modifier,
+	shape: Shape = RoundedCornerShape(8.dp),
+	color: Color = AppColors.surface,
+	contentColor: Color = AppColors.onSurface,
+	content: @Composable () -> Unit,
 ) {
-    val click = onClick?.let { appClick(it) }
-    val motion = rememberAppActionMotionState()
-    val motionModifier = if (click != null) modifier.appActionMotion(motion) else modifier
-    val motionClick = click?.let {
-        {
-            motion.bounce()
-            it()
-        }
-    }
-    when (LocalUiStyle.current) {
-        UiStyle.MIUIX -> {
-            if (motionClick != null) {
-                MiuixSurface(
-                    onClick = motionClick,
-                    modifier = motionModifier,
-                    shape = shape,
-                    color = color,
-                    contentColor = contentColor,
-                    content = content,
-                )
-            } else {
-                MiuixSurface(
-                    modifier = motionModifier,
-                    shape = shape,
-                    color = color,
-                    contentColor = contentColor,
-                    content = content,
-                )
-            }
-        }
+	val click = onClick?.let { appClick(it) }
+	val interactionSource = remember { MutableInteractionSource() }
+	val pressedModifier = if (click != null) modifier.appPressedMotion(interactionSource) else modifier
+	when (LocalUiStyle.current) {
+		UiStyle.MIUIX -> {
+			if (click != null) {
+				MiuixSurface(
+					onClick = click,
+					modifier = pressedModifier,
+					shape = shape,
+					color = color,
+					contentColor = contentColor,
+					content = content,
+				)
+			} else {
+				MiuixSurface(
+					modifier = pressedModifier,
+					shape = shape,
+					color = color,
+					contentColor = contentColor,
+					content = content,
+				)
+			}
+		}
 
-        UiStyle.MATERIAL3 -> {
-            if (motionClick != null) {
-                MaterialSurface(
-                    onClick = motionClick,
-                    modifier = motionModifier,
-                    shape = shape,
-                    color = color,
-                    contentColor = contentColor,
-                    content = content,
-                )
-            } else {
-                MaterialSurface(
-                    modifier = motionModifier,
-                    shape = shape,
-                    color = color,
-                    contentColor = contentColor,
-                    content = content,
-                )
-            }
-        }
-    }
+		UiStyle.MATERIAL3 -> {
+			if (click != null) {
+				MaterialSurface(
+					onClick = click,
+					modifier = pressedModifier,
+					shape = shape,
+					color = color,
+					contentColor = contentColor,
+					interactionSource = interactionSource,
+					content = content,
+				)
+			} else {
+				MaterialSurface(
+					modifier = pressedModifier,
+					shape = shape,
+					color = color,
+					contentColor = contentColor,
+					content = content,
+				)
+			}
+		}
+	}
 }
 
 @Composable
@@ -410,38 +358,35 @@ fun AppIcon(
 
 @Composable
 fun AppIconButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    backgroundColor: Color? = null,
-    content: @Composable () -> Unit,
+	onClick: () -> Unit,
+	modifier: Modifier = Modifier,
+	backgroundColor: Color? = null,
+	content: @Composable () -> Unit,
 ) {
-    val click = appClick(onClick)
-    val motion = rememberAppActionMotionState()
-    val motionClick = {
-        motion.bounce()
-        click()
-    }
-    val motionModifier = modifier.appActionMotion(motion)
-    when (LocalUiStyle.current) {
-        UiStyle.MIUIX -> MiuixIconButton(
-            onClick = motionClick,
-            modifier = motionModifier,
-            backgroundColor = backgroundColor ?: Color.Unspecified,
-            content = content,
-        )
+	val click = appClick(onClick)
+	val interactionSource = remember { MutableInteractionSource() }
+	val pressedModifier = modifier.appPressedMotion(interactionSource)
+	when (LocalUiStyle.current) {
+		UiStyle.MIUIX -> MiuixIconButton(
+			onClick = click,
+			modifier = pressedModifier,
+			backgroundColor = backgroundColor ?: Color.Unspecified,
+			content = content,
+		)
 
-        UiStyle.MATERIAL3 -> MaterialIconButton(
-            onClick = motionClick,
-            modifier = motionModifier,
-            colors = backgroundColor?.let {
-                IconButtonDefaults.iconButtonColors(
-                    containerColor = it,
-                    contentColor = AppColors.onPrimary,
-                )
-            } ?: IconButtonDefaults.iconButtonColors(),
-            content = content,
-        )
-    }
+		UiStyle.MATERIAL3 -> MaterialIconButton(
+			onClick = click,
+			modifier = pressedModifier,
+			interactionSource = interactionSource,
+			colors = backgroundColor?.let {
+				IconButtonDefaults.iconButtonColors(
+					containerColor = it,
+					contentColor = AppColors.onPrimary,
+				)
+			} ?: IconButtonDefaults.iconButtonColors(),
+			content = content,
+		)
+	}
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -483,71 +428,65 @@ fun AppTextField(
 
 @Composable
 fun AppPreferenceRow(
-    title: String,
-    modifier: Modifier = Modifier,
-    summary: String? = null,
-    icon: ImageVector? = null,
-    onClick: (() -> Unit)? = null,
+	title: String,
+	modifier: Modifier = Modifier,
+	summary: String? = null,
+	icon: ImageVector? = null,
+	onClick: (() -> Unit)? = null,
 ) {
-    val motion = rememberAppActionMotionState()
-    val miuixClick: (() -> Unit)? = onClick?.let { originalClick ->
-        val click = appClick(originalClick)
-        return@let {
-            motion.bounce()
-            click()
-        }
-    }
-    val motionModifier = if (onClick != null) modifier.appActionMotion(motion) else modifier
-    when (LocalUiStyle.current) {
-        UiStyle.MIUIX -> MiuixArrowPreference(
-            title = title,
-            modifier = motionModifier,
-            summary = summary,
-            startAction = icon?.let {
-                {
-                    AppIcon(
-                        imageVector = it,
-                        contentDescription = null,
-                        modifier = Modifier.size(22.dp),
-                        tint = AppColors.onSurfaceVariant,
-                    )
-                }
-            },
-            onClick = miuixClick,
-        )
+	val interactionSource = remember { MutableInteractionSource() }
+	val click = onClick?.let { appClick(it) }
+	val pressedModifier = if (click != null) modifier.appPressedMotion(interactionSource) else modifier
+	when (LocalUiStyle.current) {
+		UiStyle.MIUIX -> MiuixArrowPreference(
+			title = title,
+			modifier = pressedModifier,
+			summary = summary,
+			startAction = icon?.let {
+				{
+					AppIcon(
+						imageVector = it,
+						contentDescription = null,
+						modifier = Modifier.size(22.dp),
+						tint = AppColors.onSurfaceVariant,
+					)
+				}
+			},
+			onClick = click,
+		)
 
-        UiStyle.MATERIAL3 -> AppSurface(
-            onClick = onClick,
-            modifier = modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.surfaceContainer,
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 64.dp)
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                if (icon != null) {
-                    AppIcon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .padding(end = 16.dp)
-                            .size(22.dp),
-                        tint = AppColors.onSurfaceVariant,
-                    )
-                }
-                androidx.compose.foundation.layout.Column(
-                    modifier = Modifier.weight(1f),
-                ) {
-                    AppText(text = title, color = AppColors.onSurface)
-                    if (summary != null) {
+		UiStyle.MATERIAL3 -> AppSurface(
+			onClick = onClick,
+			modifier = modifier.fillMaxWidth(),
+			color = AppColors.surface,
+		) {
+			Row(
+				modifier = Modifier
+					.fillMaxWidth()
+					.heightIn(min = 64.dp)
+					.padding(horizontal = 16.dp, vertical = 12.dp),
+				verticalAlignment = Alignment.CenterVertically,
+			) {
+				if (icon != null) {
+					AppIcon(
+						imageVector = icon,
+						contentDescription = null,
+						modifier = Modifier
+							.padding(end = 16.dp)
+							.size(22.dp),
+						tint = AppColors.onSurfaceVariant,
+					)
+				}
+				androidx.compose.foundation.layout.Column(
+					modifier = Modifier.weight(1f),
+				) {
+					AppText(text = title, color = AppColors.onSurface)
+					if (summary != null) {
 						AnimatedContent(
 							targetState = summary,
 							transitionSpec = {
 								(fadeIn(appContentSpring) + scaleIn(appContentSpring, initialScale = 0.97f))
-									.togetherWith(fadeOut(appContentSpring) + scaleOut(appContentSpring, targetScale = 1.03f))
+									.togetherWith(fadeOut(appContentSpring) + scaleOut(appContentSpring, targetScale = 1.01f))
 							},
 							label = "preference-summary",
 						) { value ->
@@ -559,101 +498,99 @@ fun AppPreferenceRow(
 								overflow = TextOverflow.Ellipsis,
 							)
 						}
-                    }
-                }
-                if (onClick != null) {
-                    AppIcon(
-                        imageVector = Icons.Filled.KeyboardArrowRight,
-                        contentDescription = null,
-                        tint = AppColors.onSurfaceVariant,
-                    )
-                }
-            }
-        }
-    }
+					}
+				}
+				if (onClick != null) {
+					AppIcon(
+						imageVector = Icons.Filled.KeyboardArrowRight,
+						contentDescription = null,
+						tint = AppColors.onSurfaceVariant,
+					)
+				}
+			}
+		}
+	}
 }
 
 @Composable
 fun AppDropdownPreference(
-    title: String,
-    items: List<String>,
-    selectedIndex: Int,
-    onSelectedIndexChange: (Int) -> Unit,
-    modifier: Modifier = Modifier,
-    icon: ImageVector? = null,
+	title: String,
+	items: List<String>,
+	selectedIndex: Int,
+	onSelectedIndexChange: (Int) -> Unit,
+	modifier: Modifier = Modifier,
+	icon: ImageVector? = null,
 ) {
-    val playSound = LocalSoundController.current.play
-    val motion = rememberAppActionMotionState()
-    val motionModifier = modifier.appActionMotion(motion)
-    when (LocalUiStyle.current) {
-        UiStyle.MIUIX -> MiuixWindowDropdownPreference(
-            title = title,
-            items = items,
-            selectedIndex = selectedIndex,
-            modifier = motionModifier,
-            startAction = icon?.let {
-                {
-                    AppIcon(
-                        imageVector = it,
-                        contentDescription = null,
-                        modifier = Modifier.size(22.dp),
-                        tint = AppColors.onSurfaceVariant,
-                    )
-                }
-            },
-            onSelectedIndexChange = { index ->
-                motion.bounce()
-                playSound()
-                onSelectedIndexChange(index)
-            },
-            onExpandedChange = { expanded ->
-                if (expanded) {
-                    motion.bounce()
-                    playSound()
-                }
-            },
-        )
+	val playSound = LocalSoundController.current.play
+	val interactionSource = remember { MutableInteractionSource() }
+	val pressedModifier = modifier.appPressedMotion(interactionSource)
+	when (LocalUiStyle.current) {
+		UiStyle.MIUIX -> MiuixWindowDropdownPreference(
+			title = title,
+			items = items,
+			selectedIndex = selectedIndex,
+			modifier = pressedModifier,
+			startAction = icon?.let {
+				{
+					AppIcon(
+						imageVector = it,
+						contentDescription = null,
+						modifier = Modifier.size(22.dp),
+						tint = AppColors.onSurfaceVariant,
+					)
+				}
+			},
+			onSelectedIndexChange = { index ->
+				playSound()
+				onSelectedIndexChange(index)
+			},
+			onExpandedChange = { expanded ->
+				if (expanded) {
+					playSound()
+				}
+			},
+		)
 
-        UiStyle.MATERIAL3 -> {
-            var expanded by remember { mutableStateOf(false) }
-            Box(modifier = motionModifier.fillMaxWidth()) {
-                AppPreferenceRow(
-                    title = title,
-                    summary = items.getOrNull(selectedIndex),
-                    icon = icon,
-                    onClick = {
-                        expanded = true
-                    },
-                )
-                MaterialDropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
-                ) {
-                    items.forEachIndexed { index, item ->
-                        MaterialDropdownMenuItem(
-                            text = { MaterialText(item) },
-                            leadingIcon = if (index == selectedIndex) {
-                                {
-                                    MaterialIcon(
-                                        imageVector = Icons.Filled.Check,
-                                        contentDescription = null,
-                                    )
-                                }
-                            } else {
-                                null
-                            },
-                            onClick = {
-                                motion.bounce()
-                                playSound()
-                                expanded = false
-                                onSelectedIndexChange(index)
-                            },
-                        )
-                    }
-                }
-            }
-        }
-    }
+		UiStyle.MATERIAL3 -> {
+			var expanded by remember { mutableStateOf(false) }
+			Box(modifier = modifier.fillMaxWidth()) {
+				AppPreferenceRow(
+					title = title,
+					summary = items.getOrNull(selectedIndex),
+					icon = icon,
+					onClick = {
+						playSound()
+						expanded = true
+					},
+				)
+				MaterialDropdownMenu(
+					expanded = expanded,
+					onDismissRequest = { expanded = false },
+				) {
+					items.forEachIndexed { index, item ->
+						MaterialDropdownMenuItem(
+							text = { MaterialText(item) },
+							leadingIcon = if (index == selectedIndex) {
+								{
+									MaterialIcon(
+										imageVector = Icons.Filled.Check,
+										contentDescription = null,
+									)
+								}
+							} else {
+								null
+							},
+							onClick = {
+								playSound()
+								expanded = false
+								onSelectedIndexChange(index)
+							},
+						)
+					}
+				}
+			}
+		}
+	}
 }
 
 @Composable
@@ -769,87 +706,77 @@ fun RowScope.AppFloatingNavigationBarItem(
 }
 
 object AppColors {
-    val primary: Color
-        @Composable get() = when (LocalUiStyle.current) {
-            UiStyle.MIUIX -> MiuixTheme.colorScheme.primary
-            UiStyle.MATERIAL3 -> MaterialTheme.colorScheme.primary
-        }
+	private val lightBackground = Color(0xFFF8FAFF)
+	private val lightSurface = Color(0xFFFFFFFF)
+	private val lightPrimary = Color(0xFF0E9F6E)
+	private val lightPrimaryContainer = Color(0xFFBAF7D0)
+	private val lightSecondaryContainer = Color(0xFFFFF2A8)
+	private val lightSecondaryContainerVariant = Color(0xFFFFC7B8)
+	private val lightOnPrimary = Color(0xFFFFFFFF)
+	private val lightOnSurface = Color(0xFF182129)
+	private val lightOnSurfaceVariant = Color(0xFF5A6472)
+	private val lightOnContainer = Color(0xFF173124)
+	private val lightOnVariantContainer = Color(0xFF4A2B20)
+	private val lightError = Color(0xFFBA1A1A)
 
-    val onPrimary: Color
-        @Composable get() = when (LocalUiStyle.current) {
-            UiStyle.MIUIX -> MiuixTheme.colorScheme.onPrimary
-            UiStyle.MATERIAL3 -> MaterialTheme.colorScheme.onPrimary
-        }
+	private val darkBackground = Color(0xFF101418)
+	private val darkSurface = Color(0xFF1A222B)
+	private val darkPrimary = Color(0xFF55D89A)
+	private val darkPrimaryContainer = Color(0xFF1F5A3D)
+	private val darkSecondaryContainer = Color(0xFF5A4B0B)
+	private val darkSecondaryContainerVariant = Color(0xFF63392E)
+	private val darkOnPrimary = Color(0xFF053122)
+	private val darkOnSurface = Color(0xFFE3EAF2)
+	private val darkOnSurfaceVariant = Color(0xFFB0BCC9)
+	private val darkOnContainer = Color(0xFFD7F8E3)
+	private val darkOnVariantContainer = Color(0xFFFFDBD1)
+	private val darkError = Color(0xFFFFB4AB)
 
-    val surface: Color
-        @Composable get() = when (LocalUiStyle.current) {
-            UiStyle.MIUIX -> MiuixTheme.colorScheme.surface
-            UiStyle.MATERIAL3 -> MaterialTheme.colorScheme.surface
-        }
+	private val isDarkTheme: Boolean
+		@Composable get() = LocalAppDarkTheme.current
 
-    val onSurface: Color
-        @Composable get() = when (LocalUiStyle.current) {
-            UiStyle.MIUIX -> MiuixTheme.colorScheme.onSurface
-            UiStyle.MATERIAL3 -> MaterialTheme.colorScheme.onSurface
-        }
+	val background: Color
+		@Composable get() = if (isDarkTheme) darkBackground else lightBackground
 
-    val onSurfaceVariant: Color
-        @Composable get() = when (LocalUiStyle.current) {
-            UiStyle.MIUIX -> MiuixTheme.colorScheme.onSurfaceVariantSummary
-            UiStyle.MATERIAL3 -> MaterialTheme.colorScheme.onSurfaceVariant
-        }
+	val primary: Color
+		@Composable get() = if (isDarkTheme) darkPrimary else lightPrimary
 
-    val onBackground: Color
-        @Composable get() = when (LocalUiStyle.current) {
-            UiStyle.MIUIX -> MiuixTheme.colorScheme.onBackground
-            UiStyle.MATERIAL3 -> MaterialTheme.colorScheme.onBackground
-        }
+	val onPrimary: Color
+		@Composable get() = if (isDarkTheme) darkOnPrimary else lightOnPrimary
 
-    val onBackgroundVariant: Color
-        @Composable get() = when (LocalUiStyle.current) {
-            UiStyle.MIUIX -> MiuixTheme.colorScheme.onBackgroundVariant
-            UiStyle.MATERIAL3 -> MaterialTheme.colorScheme.onSurfaceVariant
-        }
+	val surface: Color
+		@Composable get() = if (isDarkTheme) darkSurface else lightSurface
 
-    val error: Color
-        @Composable get() = when (LocalUiStyle.current) {
-            UiStyle.MIUIX -> MiuixTheme.colorScheme.error
-            UiStyle.MATERIAL3 -> MaterialTheme.colorScheme.error
-        }
+	val onSurface: Color
+		@Composable get() = if (isDarkTheme) darkOnSurface else lightOnSurface
 
-    val secondaryContainer: Color
-        @Composable get() = when (LocalUiStyle.current) {
-            UiStyle.MIUIX -> MiuixTheme.colorScheme.secondaryContainer
-            UiStyle.MATERIAL3 -> MaterialTheme.colorScheme.secondaryContainer
-        }
+	val onSurfaceVariant: Color
+		@Composable get() = if (isDarkTheme) darkOnSurfaceVariant else lightOnSurfaceVariant
 
-    val onSecondaryContainer: Color
-        @Composable get() = when (LocalUiStyle.current) {
-            UiStyle.MIUIX -> MiuixTheme.colorScheme.onSecondaryContainer
-            UiStyle.MATERIAL3 -> MaterialTheme.colorScheme.onSecondaryContainer
-        }
+	val onBackground: Color
+		@Composable get() = if (isDarkTheme) darkOnSurface else lightOnSurface
 
-    val secondaryContainerVariant: Color
-        @Composable get() = when (LocalUiStyle.current) {
-            UiStyle.MIUIX -> MiuixTheme.colorScheme.secondaryContainerVariant
-            UiStyle.MATERIAL3 -> MaterialTheme.colorScheme.surfaceVariant
-        }
+	val onBackgroundVariant: Color
+		@Composable get() = if (isDarkTheme) darkOnSurfaceVariant else lightOnSurfaceVariant
 
-    val onSecondaryContainerVariant: Color
-        @Composable get() = when (LocalUiStyle.current) {
-            UiStyle.MIUIX -> MiuixTheme.colorScheme.onSecondaryContainerVariant
-            UiStyle.MATERIAL3 -> MaterialTheme.colorScheme.onSurfaceVariant
-        }
+	val error: Color
+		@Composable get() = if (isDarkTheme) darkError else lightError
 
-    val primaryContainer: Color
-        @Composable get() = when (LocalUiStyle.current) {
-            UiStyle.MIUIX -> MiuixTheme.colorScheme.primaryContainer
-            UiStyle.MATERIAL3 -> MaterialTheme.colorScheme.primaryContainer
-        }
+	val secondaryContainer: Color
+		@Composable get() = if (isDarkTheme) darkSecondaryContainer else lightSecondaryContainer
 
-    val onPrimaryContainer: Color
-        @Composable get() = when (LocalUiStyle.current) {
-            UiStyle.MIUIX -> MiuixTheme.colorScheme.onPrimaryContainer
-            UiStyle.MATERIAL3 -> MaterialTheme.colorScheme.onPrimaryContainer
-        }
+	val onSecondaryContainer: Color
+		@Composable get() = if (isDarkTheme) darkOnContainer else lightOnContainer
+
+	val secondaryContainerVariant: Color
+		@Composable get() = if (isDarkTheme) darkSecondaryContainerVariant else lightSecondaryContainerVariant
+
+	val onSecondaryContainerVariant: Color
+		@Composable get() = if (isDarkTheme) darkOnVariantContainer else lightOnVariantContainer
+
+	val primaryContainer: Color
+		@Composable get() = if (isDarkTheme) darkPrimaryContainer else lightPrimaryContainer
+
+	val onPrimaryContainer: Color
+		@Composable get() = if (isDarkTheme) darkOnContainer else lightOnContainer
 }
