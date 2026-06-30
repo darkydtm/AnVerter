@@ -12,6 +12,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -40,14 +41,17 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.awaitFirstDown
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.waitForUpOrCancellation
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
@@ -101,27 +105,44 @@ private val appContentSpring = spring<Float>(
 	stiffness = Spring.StiffnessLow,
 )
 
-@Composable
 private fun Modifier.appPressedMotion(
-	interactionSource: InteractionSource,
-): Modifier {
-	val pressed by interactionSource.collectIsPressedAsState()
+	enabled: Boolean = true,
+	interactionSource: InteractionSource? = null,
+): Modifier = composed {
+	var pointerPressed by remember { mutableStateOf(false) }
+	val interactionPressed = interactionSource?.collectIsPressedAsState()?.value ?: false
 	val scale by animateFloatAsState(
-		targetValue = if (pressed) 1.045f else 1f,
+		targetValue = if (enabled && (pointerPressed || interactionPressed)) 1.045f else 1f,
 		animationSpec = spring(
 			dampingRatio = Spring.DampingRatioMediumBouncy,
 			stiffness = Spring.StiffnessLow,
 		),
 		label = "app-pressed-scale",
 	)
-	return graphicsLayer {
-		scaleX = scale
-		scaleY = scale
-	}
+	Modifier
+		.then(
+			if (enabled) {
+				Modifier.pointerInput(Unit) {
+					awaitEachGesture {
+						awaitFirstDown(requireUnconsumed = false)
+						pointerPressed = true
+						waitForUpOrCancellation()
+						pointerPressed = false
+					}
+				}
+			} else {
+				Modifier
+			},
+		)
+		.graphicsLayer {
+			scaleX = scale
+			scaleY = scale
+		}
+}
 
 data class AppNavigationItem(
-    val icon: ImageVector,
-    val label: String,
+	val icon: ImageVector,
+	val label: String,
 )
 
 @Composable
@@ -249,7 +270,10 @@ fun AppSurface(
 ) {
 	val click = onClick?.let { appClick(it) }
 	val interactionSource = remember { MutableInteractionSource() }
-	val pressedModifier = if (click != null) modifier.appPressedMotion(interactionSource) else modifier
+	val pressedModifier = modifier.appPressedMotion(
+		enabled = click != null,
+		interactionSource = interactionSource,
+	)
 	when (LocalUiStyle.current) {
 		UiStyle.MIUIX -> {
 			if (click != null) {
@@ -365,7 +389,7 @@ fun AppIconButton(
 ) {
 	val click = appClick(onClick)
 	val interactionSource = remember { MutableInteractionSource() }
-	val pressedModifier = modifier.appPressedMotion(interactionSource)
+	val pressedModifier = modifier.appPressedMotion(interactionSource = interactionSource)
 	when (LocalUiStyle.current) {
 		UiStyle.MIUIX -> MiuixIconButton(
 			onClick = click,
@@ -434,9 +458,12 @@ fun AppPreferenceRow(
 	icon: ImageVector? = null,
 	onClick: (() -> Unit)? = null,
 ) {
-	val interactionSource = remember { MutableInteractionSource() }
 	val click = onClick?.let { appClick(it) }
-	val pressedModifier = if (click != null) modifier.appPressedMotion(interactionSource) else modifier
+	val interactionSource = remember { MutableInteractionSource() }
+	val pressedModifier = modifier.appPressedMotion(
+		enabled = click != null,
+		interactionSource = interactionSource,
+	)
 	when (LocalUiStyle.current) {
 		UiStyle.MIUIX -> MiuixArrowPreference(
 			title = title,
@@ -523,7 +550,7 @@ fun AppDropdownPreference(
 ) {
 	val playSound = LocalSoundController.current.play
 	val interactionSource = remember { MutableInteractionSource() }
-	val pressedModifier = modifier.appPressedMotion(interactionSource)
+	val pressedModifier = modifier.appPressedMotion(interactionSource = interactionSource)
 	when (LocalUiStyle.current) {
 		UiStyle.MIUIX -> MiuixWindowDropdownPreference(
 			title = title,
@@ -603,106 +630,111 @@ fun AppNavigationBar(content: @Composable RowScope.() -> Unit) {
 
 @Composable
 fun AppFloatingNavigationBar(
-    items: List<AppNavigationItem>,
-    selectedIndex: Int,
-    onItemClick: (Int) -> Unit,
+	items: List<AppNavigationItem>,
+	selectedIndex: Int,
+	onItemClick: (Int) -> Unit,
 ) {
-    when (LocalUiStyle.current) {
-        UiStyle.MIUIX -> MiuixFloatingNavigationBar {
-            items.forEachIndexed { index, item ->
-                val motion = rememberAppActionMotionState()
-                MiuixFloatingNavigationBarItem(
-                    selected = selectedIndex == index,
-                    onClick = appClick {
-                        motion.bounce()
-                        onItemClick(index)
-                    },
-                    icon = item.icon,
-                    label = item.label,
-                )
-            }
-        }
+	when (LocalUiStyle.current) {
+		UiStyle.MIUIX -> MiuixFloatingNavigationBar {
+			items.forEachIndexed { index, item ->
+				AppFloatingNavigationBarItem(
+					selected = selectedIndex == index,
+					onClick = { onItemClick(index) },
+					icon = item.icon,
+					label = item.label,
+				)
+			}
+		}
 
-        UiStyle.MATERIAL3 -> MaterialNavigationBar {
-            items.forEachIndexed { index, item ->
-                val motion = rememberAppActionMotionState()
-                MaterialNavigationBarItem(
-                    selected = selectedIndex == index,
-                    onClick = appClick {
-                        motion.bounce()
-                        onItemClick(index)
-                    },
-                    modifier = Modifier.appActionMotion(motion),
-                    icon = { MaterialIcon(item.icon, contentDescription = item.label) },
-                    label = { MaterialText(item.label) },
-                )
-            }
-        }
-    }
+		UiStyle.MATERIAL3 -> MaterialNavigationBar {
+			items.forEachIndexed { index, item ->
+				AppFloatingNavigationBarItem(
+					selected = selectedIndex == index,
+					onClick = { onItemClick(index) },
+					icon = item.icon,
+					label = item.label,
+				)
+			}
+		}
+	}
+}
+
+@Composable
+private fun RowScope.AppNavigationItemMotionBox(
+	content: @Composable () -> Unit,
+) {
+	Box(
+		modifier = Modifier
+			.weight(1f)
+			.appPressedMotion(),
+		contentAlignment = Alignment.Center,
+	) {
+		content()
+	}
 }
 
 @Composable
 fun RowScope.AppNavigationBarItem(
-    selected: Boolean,
-    onClick: () -> Unit,
-    icon: ImageVector,
-    label: String,
+	selected: Boolean,
+	onClick: () -> Unit,
+	icon: ImageVector,
+	label: String,
 ) {
-    val click = appClick(onClick)
-    val motion = rememberAppActionMotionState()
-    val motionClick = {
-        motion.bounce()
-        click()
-    }
-    val motionModifier = Modifier.appActionMotion(motion)
-    when (LocalUiStyle.current) {
-        UiStyle.MIUIX -> MiuixNavigationBarItem(
-            selected = selected,
-            onClick = motionClick,
-            icon = icon,
-            label = label,
-        )
+	val click = appClick(onClick)
+	when (LocalUiStyle.current) {
+		UiStyle.MIUIX -> AppNavigationItemMotionBox {
+			MiuixNavigationBarItem(
+				selected = selected,
+				onClick = click,
+				icon = icon,
+				label = label,
+			)
+		}
 
-        UiStyle.MATERIAL3 -> MaterialNavigationBarItem(
-            selected = selected,
-            onClick = motionClick,
-            modifier = motionModifier,
-            icon = { MaterialIcon(icon, contentDescription = label) },
-            label = { MaterialText(label) },
-        )
-    }
+		UiStyle.MATERIAL3 -> {
+			val interactionSource = remember { MutableInteractionSource() }
+			MaterialNavigationBarItem(
+				selected = selected,
+				onClick = click,
+				modifier = Modifier.appPressedMotion(interactionSource = interactionSource),
+				icon = { MaterialIcon(icon, contentDescription = label) },
+				label = { MaterialText(label) },
+				interactionSource = interactionSource,
+			)
+		}
+	}
 }
 
 @Composable
 fun RowScope.AppFloatingNavigationBarItem(
-    selected: Boolean,
-    onClick: () -> Unit,
-    icon: ImageVector,
-    label: String,
+	selected: Boolean,
+	onClick: () -> Unit,
+	icon: ImageVector,
+	label: String,
 ) {
-    val click = appClick(onClick)
-    val motion = rememberAppActionMotionState()
-    val motionClick = {
-        motion.bounce()
-        click()
-    }
-    val motionModifier = Modifier.appActionMotion(motion)
-    when (LocalUiStyle.current) {
-        UiStyle.MIUIX -> MiuixFloatingNavigationBarItem(
-            selected = selected,
-            onClick = motionClick,
-            icon = icon,
-            label = label,
-        )
+	val click = appClick(onClick)
+	when (LocalUiStyle.current) {
+		UiStyle.MIUIX -> AppNavigationItemMotionBox {
+			MiuixFloatingNavigationBarItem(
+				selected = selected,
+				onClick = click,
+				icon = icon,
+				label = label,
+			)
+		}
 
-        UiStyle.MATERIAL3 -> MaterialNavigationBarItem(
-            selected = selected,
-            onClick = motionClick,
-            modifier = motionModifier,
-            icon = { MaterialIcon(icon, contentDescription = label) },
-            label = { MaterialText(label) },
-        )
-    }
+		UiStyle.MATERIAL3 -> {
+			val interactionSource = remember { MutableInteractionSource() }
+			MaterialNavigationBarItem(
+				selected = selected,
+				onClick = click,
+				modifier = Modifier.appPressedMotion(interactionSource = interactionSource),
+				icon = { MaterialIcon(icon, contentDescription = label) },
+				label = { MaterialText(label) },
+				interactionSource = interactionSource,
+			)
+		}
+	}
 }
 
 object AppColors {
