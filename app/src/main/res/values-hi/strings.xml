@@ -15,6 +15,12 @@
     <string name="converter_offline">नेटवर्क नहीं - अंतिम दरें दिखाई जा रही हैं</string>
     <string name="converter_loading">दरें लोड हो रही हैं…</string>
     <string name="converter_error">दरें रिफ़्रेश करने में विफल</string>
+    <string name="converter_search">मुद्राएं खोजें</string>
+    <string name="converter_no_results">कोई मुद्रा नहीं मिली</string>
+    <string name="converter_favorites">पसंदीदा</string>
+    <string name="converter_all">सभी मुद्राएं</string>
+    <string name="converter_recent">हाल की कन्वर्ज़न</string>
+    <string name="converter_favorite">पसंदीदा टॉगल करें</string>
 
     <string name="calculator_title">कैलकुलेटर</string>
     <string name="calculator_error">त्रुटि</string>

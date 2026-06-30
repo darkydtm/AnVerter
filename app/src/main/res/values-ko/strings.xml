@@ -15,6 +15,12 @@
     <string name="converter_offline">네트워크 없음 - 마지막 환율 표시</string>
     <string name="converter_loading">환율 불러오는 중…</string>
     <string name="converter_error">환율 새로고침 실패</string>
+    <string name="converter_search">통화 검색</string>
+    <string name="converter_no_results">통화를 찾을 수 없음</string>
+    <string name="converter_favorites">즐겨찾기</string>
+    <string name="converter_all">모든 통화</string>
+    <string name="converter_recent">최근 변환</string>
+    <string name="converter_favorite">즐겨찾기 전환</string>
 
     <string name="calculator_title">계산기</string>
     <string name="calculator_error">오류</string>

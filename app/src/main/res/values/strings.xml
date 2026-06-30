@@ -17,6 +17,12 @@
     <string name="converter_offline">No network - showing last rates</string>
     <string name="converter_loading">Loading rates…</string>
     <string name="converter_error">Failed to refresh rates</string>
+    <string name="converter_search">Search currencies</string>
+    <string name="converter_no_results">No currencies found</string>
+    <string name="converter_favorites">Favorites</string>
+    <string name="converter_all">All currencies</string>
+    <string name="converter_recent">Recent conversions</string>
+    <string name="converter_favorite">Toggle favorite</string>
 
     <string name="calculator_title">Calculator</string>
     <string name="calculator_error">Error</string>

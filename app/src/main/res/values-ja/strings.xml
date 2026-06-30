@@ -15,6 +15,12 @@
     <string name="converter_offline">ネットワークなし - 最新のレートを表示</string>
     <string name="converter_loading">レートを読み込み中…</string>
     <string name="converter_error">レートの更新に失敗しました</string>
+    <string name="converter_search">通貨を検索</string>
+    <string name="converter_no_results">通貨が見つかりません</string>
+    <string name="converter_favorites">お気に入り</string>
+    <string name="converter_all">すべての通貨</string>
+    <string name="converter_recent">最近の変換</string>
+    <string name="converter_favorite">お気に入りを切り替え</string>
 
     <string name="calculator_title">電卓</string>
     <string name="calculator_error">エラー</string>

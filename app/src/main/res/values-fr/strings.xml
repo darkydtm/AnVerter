@@ -15,6 +15,12 @@
     <string name="converter_offline">Pas de réseau - affichage des derniers taux</string>
     <string name="converter_loading">Chargement des taux…</string>
     <string name="converter_error">Échec de l\'actualisation des taux</string>
+    <string name="converter_search">Rechercher des devises</string>
+    <string name="converter_no_results">Aucune devise trouvée</string>
+    <string name="converter_favorites">Favoris</string>
+    <string name="converter_all">Toutes les devises</string>
+    <string name="converter_recent">Conversions récentes</string>
+    <string name="converter_favorite">Basculer le favori</string>
 
     <string name="calculator_title">Calculatrice</string>
     <string name="calculator_error">Erreur</string>

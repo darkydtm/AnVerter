@@ -15,6 +15,12 @@
     <string name="converter_offline">لا توجد شبكة - عرض آخر الأسعار</string>
     <string name="converter_loading">جارٍ تحميل الأسعار…</string>
     <string name="converter_error">فشل تحديث الأسعار</string>
+    <string name="converter_search">البحث عن العملات</string>
+    <string name="converter_no_results">لم يتم العثور على عملات</string>
+    <string name="converter_favorites">المفضلة</string>
+    <string name="converter_all">كل العملات</string>
+    <string name="converter_recent">التحويلات الأخيرة</string>
+    <string name="converter_favorite">تبديل المفضلة</string>
 
     <string name="calculator_title">الآلة الحاسبة</string>
     <string name="calculator_error">خطأ</string>
