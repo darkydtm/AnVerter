@@ -2,6 +2,7 @@ package com.anverter.app.feature.calculator
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
@@ -12,17 +13,22 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Backspace
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.Composable
@@ -44,9 +50,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.anverter.app.R
 import com.anverter.app.data.local.CalculatorHistoryItem
 import com.anverter.app.ui.adaptive.AppColors
+import com.anverter.app.ui.adaptive.AppHalfSheet
 import com.anverter.app.ui.adaptive.AppIcon
 import com.anverter.app.ui.adaptive.AppIconButton
-import com.anverter.app.ui.adaptive.AppCard
 import com.anverter.app.ui.adaptive.AppSurface
 import com.anverter.app.ui.adaptive.AppText
 import com.anverter.app.ui.adaptive.AppTopBar
@@ -73,14 +79,22 @@ fun CalculatorScreen(
 	modifier: Modifier = Modifier,
 ) {
 	val state by viewModel.state.collectAsStateWithLifecycle()
-	var extendedVisible by rememberSaveable(state.extendedMode) {
-		mutableStateOf(state.extendedMode)
-	}
+	var extendedVisible by rememberSaveable { mutableStateOf(false) }
+	var historyVisible by rememberSaveable { mutableStateOf(false) }
 
 	Column(modifier = modifier.fillMaxSize()) {
 		AppTopBar(
 			title = stringResource(R.string.calculator_title),
 			actions = {
+				if (state.history.isNotEmpty()) {
+					AppIconButton(onClick = { historyVisible = true }) {
+						AppIcon(
+							imageVector = Icons.Filled.History,
+							contentDescription = stringResource(R.string.calculator_history),
+							tint = AppColors.onBackground,
+						)
+					}
+				}
 				AppIconButton(onClick = viewModel::clear) {
 					AppIcon(
 						imageVector = Icons.Filled.Delete,
@@ -110,13 +124,6 @@ fun CalculatorScreen(
 				fontSize = 24.sp,
 				color = if (state.error) AppColors.error else AppColors.onBackgroundVariant,
 			)
-			AnimatedVisibility(
-				visible = state.history.isNotEmpty(),
-				enter = fadeIn(calculatorSpring) + scaleIn(calculatorSpring, initialScale = 0.96f),
-				exit = fadeOut(calculatorSpring) + scaleOut(calculatorSpring, targetScale = 0.96f),
-			) {
-				AppHistory(state.history)
-			}
 		}
 
 		Keypad(
@@ -124,6 +131,13 @@ fun CalculatorScreen(
 			onExtendedVisibleToggle = { extendedVisible = !extendedVisible },
 			viewModel = viewModel,
 			bottomPadding = bottomPadding,
+		)
+	}
+
+	if (historyVisible) {
+		CalculatorHistorySheet(
+			history = state.history,
+			onDismiss = { historyVisible = false },
 		)
 	}
 }
@@ -155,36 +169,58 @@ private fun AnimatedCalculatorText(
 }
 
 @Composable
-private fun AppHistory(history: List<CalculatorHistoryItem>) {
-	AppCard(modifier = Modifier.fillMaxWidth()) {
-		Column(
-			modifier = Modifier.padding(12.dp),
-			verticalArrangement = Arrangement.spacedBy(4.dp),
+private fun CalculatorHistorySheet(
+	history: List<CalculatorHistoryItem>,
+	onDismiss: () -> Unit,
+) {
+	AppHalfSheet(onDismiss = onDismiss) {
+		AppText(
+			text = stringResource(R.string.calculator_history),
+			modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp),
+			fontSize = 20.sp,
+			fontWeight = FontWeight.Bold,
+			color = AppColors.onSurface,
+		)
+		LazyColumn(
+			modifier = Modifier.fillMaxSize(),
+			verticalArrangement = Arrangement.spacedBy(8.dp),
+			contentPadding = PaddingValues(
+				start = 16.dp,
+				end = 16.dp,
+				bottom = 24.dp,
+			),
+		) {
+			items(history) { item ->
+				CalculatorHistoryRow(item)
+			}
+		}
+	}
+}
+
+@Composable
+private fun CalculatorHistoryRow(item: CalculatorHistoryItem) {
+	AnimatedContent(
+		targetState = item,
+		transitionSpec = {
+			(fadeIn(calculatorSpring) + scaleIn(calculatorSpring, initialScale = 0.97f))
+				.togetherWith(fadeOut(calculatorSpring))
+		},
+		label = "calculator-history-item",
+	) { historyItem ->
+		AppSurface(
+			shape = RoundedCornerShape(16.dp),
+			color = AppColors.secondaryContainer,
+			contentColor = AppColors.onSecondaryContainer,
 		) {
 			AppText(
-				text = stringResource(R.string.calculator_history),
-				fontSize = 14.sp,
-				fontWeight = FontWeight.Medium,
-				color = AppColors.onSurfaceVariant,
+				text = "${historyItem.expression} = ${historyItem.result}",
+				modifier = Modifier
+					.fillMaxWidth()
+					.padding(horizontal = 16.dp, vertical = 14.dp),
+				color = AppColors.onSecondaryContainer,
+				maxLines = 2,
+				overflow = TextOverflow.Ellipsis,
 			)
-			history.take(4).forEach { item ->
-				AnimatedContent(
-					targetState = item,
-					transitionSpec = {
-						(fadeIn(calculatorSpring) + scaleIn(calculatorSpring, initialScale = 0.97f))
-							.togetherWith(fadeOut(calculatorSpring))
-					},
-					label = "calculator-history-item",
-				) { historyItem ->
-					AppText(
-						text = "${historyItem.expression} = ${historyItem.result}",
-						fontSize = 13.sp,
-						color = AppColors.onSurfaceVariant,
-						maxLines = 1,
-						overflow = TextOverflow.Ellipsis,
-					)
-				}
-			}
 		}
 	}
 }
@@ -200,8 +236,21 @@ private fun Keypad(
 		modifier = Modifier
 			.fillMaxWidth()
 			.padding(horizontal = 8.dp)
-			.padding(bottom = bottomPadding + 8.dp),
+			.padding(bottom = bottomPadding + 8.dp)
+			.animateContentSize(
+				animationSpec = spring(
+					dampingRatio = Spring.DampingRatioNoBouncy,
+					stiffness = Spring.StiffnessLow,
+				),
+			),
 	) {
+		AnimatedVisibility(
+			visible = extendedVisible,
+			enter = fadeIn(calculatorSpring) + scaleIn(calculatorSpring, initialScale = 0.96f),
+			exit = fadeOut(calculatorSpring) + scaleOut(calculatorSpring, targetScale = 0.96f),
+		) {
+			ExtendedFunctionPanel(viewModel)
+		}
 		Row(Modifier.fillMaxWidth()) {
 			Key(CalculatorKey("C", KeyKind.FUNCTION) { viewModel.clear() })
 			Key(CalculatorKey("(", KeyKind.FUNCTION) { viewModel.input("(") })
@@ -247,46 +296,50 @@ private fun Keypad(
 			)
 			Key(CalculatorKey("=", KeyKind.EQUALS) { viewModel.equals() })
 		}
-		AnimatedVisibility(
-			visible = extendedVisible,
-			enter = fadeIn(calculatorSpring) + scaleIn(calculatorSpring, initialScale = 0.94f),
-			exit = fadeOut(calculatorSpring) + scaleOut(calculatorSpring, targetScale = 0.94f),
-		) {
-			Column(modifier = Modifier.fillMaxWidth()) {
-				Row(Modifier.fillMaxWidth()) {
-					Key(CalculatorKey("√", KeyKind.FUNCTION) { viewModel.input("√") })
-					Key(CalculatorKey("x²", KeyKind.FUNCTION) { viewModel.input("^2") })
-					Key(CalculatorKey("1/x", KeyKind.FUNCTION) { viewModel.input("^-1") })
-					Key(CalculatorKey("n!", KeyKind.FUNCTION) { viewModel.input("!") })
-				}
-				Row(Modifier.fillMaxWidth()) {
-					Key(CalculatorKey("%", KeyKind.FUNCTION) { viewModel.input("%") })
-					Box(
-						modifier = Modifier
-							.weight(1f)
-							.aspectRatio(1f)
-							.padding(6.dp),
-					)
-					Box(
-						modifier = Modifier
-							.weight(1f)
-							.aspectRatio(1f)
-							.padding(6.dp),
-					)
-					Box(
-						modifier = Modifier
-							.weight(1f)
-							.aspectRatio(1f)
-							.padding(6.dp),
-					)
-				}
-			}
-		}
+	}
+}
+
+@Composable
+private fun ExtendedFunctionPanel(viewModel: CalculatorViewModel) {
+	Row(Modifier.fillMaxWidth()) {
+		CompactKey(CalculatorKey("√", KeyKind.FUNCTION) { viewModel.input("√") })
+		CompactKey(CalculatorKey("x²", KeyKind.FUNCTION) { viewModel.input("^2") })
+		CompactKey(CalculatorKey("1/x", KeyKind.FUNCTION) { viewModel.input("^-1") })
+		CompactKey(CalculatorKey("n!", KeyKind.FUNCTION) { viewModel.input("!") })
+		CompactKey(CalculatorKey("%", KeyKind.FUNCTION) { viewModel.input("%") })
 	}
 }
 
 @Composable
 private fun RowScope.Key(key: CalculatorKey) {
+	CalculatorKeySurface(
+		key = key,
+		modifier = Modifier
+			.weight(1f)
+			.aspectRatio(1f)
+			.padding(6.dp),
+		fontSize = 26.sp,
+	)
+}
+
+@Composable
+private fun RowScope.CompactKey(key: CalculatorKey) {
+	CalculatorKeySurface(
+		key = key,
+		modifier = Modifier
+			.weight(1f)
+			.height(52.dp)
+			.padding(4.dp),
+		fontSize = 18.sp,
+	)
+}
+
+@Composable
+private fun CalculatorKeySurface(
+	key: CalculatorKey,
+	modifier: Modifier,
+	fontSize: androidx.compose.ui.unit.TextUnit,
+) {
 	val background: Color = when (key.kind) {
 		KeyKind.DIGIT -> AppColors.secondaryContainer
 		KeyKind.FUNCTION -> AppColors.secondaryContainerVariant
@@ -301,10 +354,7 @@ private fun RowScope.Key(key: CalculatorKey) {
 	}
 	AppSurface(
 		onClick = key.onClick,
-		modifier = Modifier
-			.weight(1f)
-			.aspectRatio(1f)
-			.padding(6.dp),
+		modifier = modifier,
 		shape = RoundedCornerShape(28.dp),
 		color = background,
 	) {
@@ -319,7 +369,7 @@ private fun RowScope.Key(key: CalculatorKey) {
 			} else {
 				AppText(
 					text = key.label,
-					fontSize = 26.sp,
+					fontSize = fontSize,
 					fontWeight = FontWeight.Medium,
 					textAlign = TextAlign.Center,
 					color = foreground,

@@ -1,7 +1,6 @@
 package com.anverter.app.feature.converter
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
@@ -23,15 +22,14 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
@@ -62,6 +60,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.anverter.app.R
 import com.anverter.app.ui.adaptive.AppCard
 import com.anverter.app.ui.adaptive.AppColors
+import com.anverter.app.ui.adaptive.AppHalfSheet
 import com.anverter.app.ui.adaptive.AppIcon
 import com.anverter.app.ui.adaptive.AppIconButton
 import com.anverter.app.ui.adaptive.AppPreferenceRow
@@ -96,6 +95,7 @@ fun ConverterScreen(
 ) {
 	val state by viewModel.state.collectAsStateWithLifecycle()
 	var picker by remember { mutableStateOf<PickerTarget?>(null) }
+	var historyVisible by remember { mutableStateOf(false) }
 
 	LifecycleResumeEffect(Unit) {
 		viewModel.onResumed()
@@ -109,6 +109,15 @@ fun ConverterScreen(
 			AppTopBar(
 				title = stringResource(R.string.converter_title),
 				actions = {
+					if (state.recents.isNotEmpty()) {
+						AppIconButton(onClick = { historyVisible = true }) {
+							AppIcon(
+								imageVector = Icons.Filled.History,
+								contentDescription = stringResource(R.string.converter_recent),
+								tint = AppColors.onBackground,
+							)
+						}
+					}
 					AppIconButton(onClick = viewModel::refresh) {
 						AppIcon(
 							imageVector = Icons.Filled.Refresh,
@@ -148,16 +157,17 @@ fun ConverterScreen(
 				) { status ->
 					StatusLine(status)
 				}
-				AnimatedVisibility(
-					visible = state.recents.isNotEmpty(),
-					enter = fadeIn(converterSpring) + scaleIn(converterSpring, initialScale = 0.97f),
-					exit = fadeOut(converterSpring) + scaleOut(converterSpring, targetScale = 0.97f),
-				) {
-					RecentConversions(state, viewModel)
-				}
 				Spacer(Modifier.height(16.dp))
 			}
 		}
+	}
+
+	if (historyVisible) {
+		RecentConversionsSheet(
+			recents = state.recents,
+			viewModel = viewModel,
+			onDismiss = { historyVisible = false },
+		)
 	}
 
 	picker?.let { target ->
@@ -310,21 +320,43 @@ private fun currencyLabel(currencies: List<CurrencyOption>, currencyCode: String
 	currencies.firstOrNull { it.code == currencyCode }?.label ?: currencyCode.uppercase()
 
 @Composable
-private fun RecentConversions(state: ConverterUiState, viewModel: ConverterViewModel) {
-	AppSmallTitle(text = stringResource(R.string.converter_recent))
-	LazyRow(
-		modifier = Modifier.fillMaxWidth(),
-		horizontalArrangement = Arrangement.spacedBy(8.dp),
-		contentPadding = PaddingValues(horizontal = 2.dp, vertical = 4.dp),
-	) {
-		items(state.recents) { recent ->
-			RecentConversionChip(recent, viewModel)
+private fun RecentConversionsSheet(
+	recents: List<RecentPair>,
+	viewModel: ConverterViewModel,
+	onDismiss: () -> Unit,
+) {
+	AppHalfSheet(onDismiss = onDismiss) {
+		AppText(
+			text = stringResource(R.string.converter_recent),
+			modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp),
+			fontSize = 20.sp,
+			fontWeight = FontWeight.Bold,
+			color = AppColors.onSurface,
+		)
+		LazyColumn(
+			modifier = Modifier.fillMaxSize(),
+			verticalArrangement = Arrangement.spacedBy(8.dp),
+			contentPadding = PaddingValues(
+				start = 16.dp,
+				end = 16.dp,
+				bottom = 24.dp,
+			),
+		) {
+			items(recents) { recent ->
+				RecentConversionRow(
+					recent = recent,
+					onClick = {
+						viewModel.applyRecent(recent)
+						onDismiss()
+					},
+				)
+			}
 		}
 	}
 }
 
 @Composable
-private fun RecentConversionChip(recent: RecentPair, viewModel: ConverterViewModel) {
+private fun RecentConversionRow(recent: RecentPair, onClick: () -> Unit) {
 	AnimatedContent(
 		targetState = recent,
 		transitionSpec = {
@@ -334,7 +366,7 @@ private fun RecentConversionChip(recent: RecentPair, viewModel: ConverterViewMod
 		label = "converter-recent",
 	) { pair ->
 		AppSurface(
-			onClick = { viewModel.applyRecent(pair) },
+			onClick = onClick,
 			shape = RoundedCornerShape(16.dp),
 			color = AppColors.secondaryContainer,
 			contentColor = AppColors.onSecondaryContainer,
@@ -342,8 +374,8 @@ private fun RecentConversionChip(recent: RecentPair, viewModel: ConverterViewMod
 			AppText(
 				text = pair.label,
 				modifier = Modifier
-					.widthIn(max = 220.dp)
-					.padding(horizontal = 14.dp, vertical = 8.dp),
+					.fillMaxWidth()
+					.padding(horizontal = 16.dp, vertical = 14.dp),
 				color = AppColors.onSecondaryContainer,
 				maxLines = 1,
 				overflow = TextOverflow.Ellipsis,
