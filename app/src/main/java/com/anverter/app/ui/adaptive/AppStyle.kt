@@ -585,10 +585,7 @@ fun AppDropdownPreference(
 					title = title,
 					summary = items.getOrNull(selectedIndex),
 					icon = icon,
-					onClick = {
-						playSound()
-						expanded = true
-					},
+					onClick = { expanded = true },
 				)
 				MaterialDropdownMenu(
 					expanded = expanded,
