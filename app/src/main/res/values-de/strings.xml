@@ -24,6 +24,9 @@
     <string name="settings_theme_system">System</string>
     <string name="settings_theme_light">Hell</string>
     <string name="settings_theme_dark">Dunkel</string>
+    <string name="settings_navbar">Navigationsleiste</string>
+    <string name="settings_navbar_tabs">Tabs</string>
+    <string name="settings_navbar_slider">Schwebend</string>
     <string name="settings_about">Über</string>
     <string name="settings_source">Kursquelle</string>
     <string name="settings_license">Lizenz</string>

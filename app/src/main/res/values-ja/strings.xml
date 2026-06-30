@@ -24,6 +24,9 @@
     <string name="settings_theme_system">システム</string>
     <string name="settings_theme_light">ライト</string>
     <string name="settings_theme_dark">ダーク</string>
+    <string name="settings_navbar">ナビゲーションバー</string>
+    <string name="settings_navbar_tabs">タブ</string>
+    <string name="settings_navbar_slider">フローティング</string>
     <string name="settings_about">アプリについて</string>
     <string name="settings_source">レートの提供元</string>
     <string name="settings_license">ライセンス</string>

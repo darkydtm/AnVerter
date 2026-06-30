@@ -19,6 +19,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.anverter.app.BuildConfig
 import com.anverter.app.R
+import com.anverter.app.ui.NavBarStyle
 import com.anverter.app.ui.theme.ThemeMode
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.SmallTitle
@@ -27,6 +28,7 @@ import top.yukonga.miuix.kmp.preference.ArrowPreference
 import top.yukonga.miuix.kmp.preference.WindowDropdownPreference
 
 private val THEME_ORDER = listOf(ThemeMode.SYSTEM, ThemeMode.LIGHT, ThemeMode.DARK)
+private val NAV_BAR_ORDER = listOf(NavBarStyle.TABS, NavBarStyle.SLIDER)
 private const val GPL_URL = "https://www.gnu.org/licenses/gpl-3.0.html"
 
 @Composable
@@ -37,11 +39,17 @@ fun SettingsScreen(
 ) {
     val context = LocalContext.current
     val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
+    val navBarStyle by viewModel.navBarStyle.collectAsStateWithLifecycle()
 
     val themeLabels = listOf(
         stringResource(R.string.settings_theme_system),
         stringResource(R.string.settings_theme_light),
         stringResource(R.string.settings_theme_dark),
+    )
+
+    val navBarLabels = listOf(
+        stringResource(R.string.settings_navbar_tabs),
+        stringResource(R.string.settings_navbar_slider),
     )
 
     Column(
@@ -58,6 +66,16 @@ fun SettingsScreen(
                 items = themeLabels,
                 selectedIndex = THEME_ORDER.indexOf(themeMode).coerceAtLeast(0),
                 onSelectedIndexChange = { index -> viewModel.setThemeMode(THEME_ORDER[index]) },
+            )
+        }
+
+        SmallTitle(text = stringResource(R.string.settings_navbar))
+        Card(modifier = Modifier.fillMaxWidth()) {
+            WindowDropdownPreference(
+                title = stringResource(R.string.settings_navbar),
+                items = navBarLabels,
+                selectedIndex = NAV_BAR_ORDER.indexOf(navBarStyle).coerceAtLeast(0),
+                onSelectedIndexChange = { index -> viewModel.setNavBarStyle(NAV_BAR_ORDER[index]) },
             )
         }
 

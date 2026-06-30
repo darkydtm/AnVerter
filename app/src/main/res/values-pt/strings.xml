@@ -24,6 +24,9 @@
     <string name="settings_theme_system">Sistema</string>
     <string name="settings_theme_light">Claro</string>
     <string name="settings_theme_dark">Escuro</string>
+    <string name="settings_navbar">Barra de navegação</string>
+    <string name="settings_navbar_tabs">Abas</string>
+    <string name="settings_navbar_slider">Flutuante</string>
     <string name="settings_about">Sobre</string>
     <string name="settings_source">Fonte das taxas</string>
     <string name="settings_license">Licença</string>
